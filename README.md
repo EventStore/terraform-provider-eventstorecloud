@@ -13,6 +13,11 @@ of which varies by operating system:
 
 Alternatively, the binary can be placed alongside the main `terraform` binary.
 
+On macOS and Linux, you can download the provider using the following commands:
+
+- macOS: `curl -O ~/.terraform.d/plugins/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.0.0/terraform-provider-eventstorecloud_darwin_amd64`
+- Linux: `curl -O ~/.terraform.d/plugins/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.0.0/terraform-provider-eventstorecloud_linux_amd64`
+
 If you prefer to install from source, use the `make install` target in this repository. You'll need a Go 1.13+
 development environment.
 
