@@ -71,6 +71,12 @@ func resourcePeering() *schema.Resource {
 				},
 				Set: schema.HashString,
 			},
+
+			"provider_peering_id": {
+				Description: "The resource-provider-assigned identifier for the peering",
+				Type: schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -104,12 +110,17 @@ func resourcePeeringCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(resp.PeeringID)
 
-	return c.client.PeeringWaitForState(context.Background(), &client.WaitForPeeringStateRequest{
+	peering, err := c.client.PeeringWaitForState(context.Background(), &client.WaitForPeeringStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		PeeringID:      resp.PeeringID,
 		State:          "initiated",
 	})
+	if err != nil {
+		return err
+	}
+
+	return d.Set("provider_peering_id", peering.ProviderPeeringIdentifier)
 }
 
 func resourcePeeringExists(d *schema.ResourceData, meta interface{}) (bool, error) {
@@ -192,6 +203,9 @@ func resourcePeeringRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 	if err := d.Set("routes", resp.Peering.Routes); err != nil {
+		return err
+	}
+	if err := d.Set("provider_peering_id", resp.Peering.ProviderPeeringIdentifier); err != nil {
 		return err
 	}
 

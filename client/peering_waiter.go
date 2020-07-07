@@ -12,7 +12,7 @@ type WaitForPeeringStateRequest struct {
 	State          string
 }
 
-func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringStateRequest) error {
+func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringStateRequest) (*Peering, error) {
 	getRequest := &GetPeeringRequest{
 		OrganizationID: req.OrganizationID,
 		ProjectID:      req.ProjectID,
@@ -22,7 +22,7 @@ func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringSta
 	for {
 		resp, err := c.PeeringGet(ctx, getRequest)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if resp.Peering.Status != req.State {
@@ -30,6 +30,6 @@ func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringSta
 			continue
 		}
 
-		return nil
+		return &resp.Peering, nil
 	}
 }
