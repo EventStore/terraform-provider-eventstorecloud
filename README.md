@@ -195,7 +195,9 @@ resource "eventstorecloud_peering" "example" {
 
 As well as the input arguments, the following properties are exposed:
 
-- `id` - (`string`) - the ID of the oeering.
+- `id` - (`string`) - the ID of the peering.
+- `provider_peering_id` - (`string`) - the resource-provider-assigned identifier of the peering. This can be used in other
+  Terraform code to accept the peering link.
 
 ## Resource `eventstorecloud_managed_cluster`
 

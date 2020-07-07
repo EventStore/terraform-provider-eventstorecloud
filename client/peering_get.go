@@ -9,17 +9,18 @@ import (
 )
 
 type Peering struct {
-	ProjectID             string   `json:"projectId"`
-	PeeringID             string   `json:"id"`
-	NetworkID             string   `json:"networkId"`
-	Provider              string   `json:"provider"`
-	Name                  string   `json:"description"`
-	PeerAccountIdentifier string   `json:"peerAccountId"`
-	PeerNetworkIdentifier string   `json:"peerNetworkId"`
-	PeerNetworkRegion     string   `json:"peerNetworkRegion"`
-	Routes                []string `json:"routes"`
-	Status                string   `json:"status"`
-	Created               string   `json:"created,omitempty"`
+	ProjectID                 string   `json:"projectId"`
+	PeeringID                 string   `json:"id"`
+	NetworkID                 string   `json:"networkId"`
+	Provider                  string   `json:"provider"`
+	Name                      string   `json:"description"`
+	PeerAccountIdentifier     string   `json:"peerAccountId"`
+	PeerNetworkIdentifier     string   `json:"peerNetworkId"`
+	PeerNetworkRegion         string   `json:"peerNetworkRegion"`
+	ProviderPeeringIdentifier string   `json:"providerPeeringId"`
+	Routes                    []string `json:"routes"`
+	Status                    string   `json:"status"`
+	Created                   string   `json:"created,omitempty"`
 }
 
 type GetPeeringRequest struct {
