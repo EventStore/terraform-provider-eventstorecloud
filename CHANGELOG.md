@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 * `resource/eventstorecloud_peering`: Add computed property `provider_peering_id`. ([#1](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/1))
+* `resource/eventstorecloud_managed_cluster`: Correct `three-node-multi-zone` topology validation. ([#2](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/2))
 
 ## 1.0.0 (June 28, 2020)
 
