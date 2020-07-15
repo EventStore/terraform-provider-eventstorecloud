@@ -74,8 +74,8 @@ func resourcePeering() *schema.Resource {
 
 			"provider_peering_id": {
 				Description: "The resource-provider-assigned identifier for the peering",
-				Type: schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		},
 	}
@@ -228,10 +228,11 @@ func resourcePeeringDelete(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	return c.client.PeeringWaitForState(context.Background(), &client.WaitForPeeringStateRequest{
+	_, err := c.client.PeeringWaitForState(context.Background(), &client.WaitForPeeringStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		PeeringID:      peeringId,
 		State:          "deleted",
 	})
+	return err
 }
