@@ -10,7 +10,7 @@ import (
 
 type Project struct {
 	ProjectID      string `json:"id"`
-	OrganizationID string `json:"orgId"`
+	OrganizationID string `json:"organizationId"`
 	Name           string `json:"name"`
 	Created        string `json:"created"`
 }
