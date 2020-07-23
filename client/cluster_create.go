@@ -10,15 +10,17 @@ import (
 )
 
 type CreateManagedClusterRequest struct {
-	OrganizationID string
-	ProjectID      string
-	NetworkId      string `json:"networkId"`
-	Name           string `json:"description"`
-	Topology       string `json:"topology"`
-	InstanceType   string `json:"instanceType"`
-	DiskSizeGB     int32  `json:"diskSizeGb"`
-	DiskType       string `json:"diskType"`
-	ServerVersion  string `json:"serverVersion"`
+	OrganizationID  string
+	ProjectID       string
+	NetworkId       string `json:"networkId"`
+	Name            string `json:"description"`
+	Topology        string `json:"topology"`
+	InstanceType    string `json:"instanceType"`
+	DiskSizeGB      int32  `json:"diskSizeGb"`
+	DiskType        string `json:"diskType"`
+	ServerVersion   string `json:"serverVersion"`
+	ProjectionLevel string `json:"projectionLevel"`
+	CloudAuth       bool   `json:"cloudIntegratedAuthentication"`
 }
 
 type CreateManagedClusterResponse struct {
@@ -50,7 +52,7 @@ func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClu
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "creating managed cluster")
+		return nil, translateStatusCode(resp.StatusCode, "creating managed cluster", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

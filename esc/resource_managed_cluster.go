@@ -84,6 +84,18 @@ func resourceManagedCluster() *schema.Resource {
 					return strings.ToLower(val.(string))
 				},
 			},
+			"projection_level": {
+				Description:  "Determines whether to run no projections, system projections only, or system and user projections",
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "off",
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringInSlice(validProjectionLevels, true),
+				StateFunc: func(val interface{}) string {
+					// Normalize to lower case
+					return strings.ToLower(val.(string))
+				},
+			},
 
 			"resource_provider": {
 				Description: "Provider in which the cluster was created. Determined by the provider of the Network.",
@@ -110,15 +122,16 @@ func resourceManagedClusterCreate(d *schema.ResourceData, meta interface{}) erro
 	projectId := d.Get("project_id").(string)
 
 	request := &client.CreateManagedClusterRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      projectId,
-		NetworkId:      d.Get("network_id").(string),
-		Name:           d.Get("name").(string),
-		Topology:       strings.ToLower(d.Get("topology").(string)),
-		InstanceType:   strings.ToLower(d.Get("instance_type").(string)),
-		DiskSizeGB:     int32(d.Get("disk_size").(int)),
-		DiskType:       strings.ToLower(d.Get("disk_type").(string)),
-		ServerVersion:  strings.ToLower(d.Get("server_version").(string)),
+		OrganizationID:  c.organizationId,
+		ProjectID:       projectId,
+		NetworkId:       d.Get("network_id").(string),
+		Name:            d.Get("name").(string),
+		Topology:        strings.ToLower(d.Get("topology").(string)),
+		InstanceType:    strings.ToLower(d.Get("instance_type").(string)),
+		DiskSizeGB:      int32(d.Get("disk_size").(int)),
+		DiskType:        strings.ToLower(d.Get("disk_type").(string)),
+		ServerVersion:   strings.ToLower(d.Get("server_version").(string)),
+		ProjectionLevel: strings.ToLower(d.Get("projection_level").(string)),
 	}
 
 	resp, err := c.client.ManagedClusterCreate(context.Background(), request)
@@ -199,6 +212,9 @@ func resourceManagedClusterRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 	if err := d.Set("server_version", resp.ManagedCluster.ServerVersion); err != nil {
+		return err
+	}
+	if err := d.Set("projection_level", resp.ManagedCluster.ProjectionLevel); err != nil {
 		return err
 	}
 

@@ -47,7 +47,7 @@ func (c *Client) NetworkGet(ctx context.Context, req *GetNetworkRequest) (*GetNe
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "getting network")
+		return nil, translateStatusCode(resp.StatusCode, "getting network", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

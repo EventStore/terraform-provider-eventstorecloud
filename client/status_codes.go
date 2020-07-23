@@ -1,8 +1,16 @@
 package client
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
-func translateStatusCode(status int, activity string) error {
-	return fmt.Errorf("error %s", activity)
+func translateStatusCode(status int, activity string, body io.Reader) error {
+	problemDetails, err := newProblemDetailsFromReader(body)
+	if err != nil {
+		return err
+	}
+
+	return fmt.Errorf("error %s: %w", activity, problemDetails)
 }
 

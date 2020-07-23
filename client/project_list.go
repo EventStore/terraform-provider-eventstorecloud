@@ -35,7 +35,7 @@ func (c *Client) ProjectList(ctx context.Context, req *ListProjectsRequest) (*Li
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "listing projects")
+		return nil, translateStatusCode(resp.StatusCode, "listing projects", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

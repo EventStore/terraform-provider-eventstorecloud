@@ -9,20 +9,21 @@ import (
 )
 
 type ManagedCluster struct {
-	OrganizationID string `json:"organizationId"`
-	ProjectID      string `json:"projectId"`
-	NetworkID      string `json:"networkId"`
-	ClusterID      string `json:"id"`
-	Name           string `json:"description"`
-	Provider       string `json:"provider"`
-	Region         string `json:"region"`
-	Topology       string `json:"topology"`
-	InstanceType   string `json:"instanceType"`
-	DiskSizeGB     int32  `json:"diskSizeGb"`
-	DiskType       string `json:"diskType"`
-	ServerVersion  string `json:"serverVersion"`
-	Status         string `json:"status"`
-	Created        string `json:"created"`
+	OrganizationID  string `json:"organizationId"`
+	ProjectID       string `json:"projectId"`
+	NetworkID       string `json:"networkId"`
+	ClusterID       string `json:"id"`
+	Name            string `json:"description"`
+	Provider        string `json:"provider"`
+	Region          string `json:"region"`
+	Topology        string `json:"topology"`
+	InstanceType    string `json:"instanceType"`
+	DiskSizeGB      int32  `json:"diskSizeGb"`
+	DiskType        string `json:"diskType"`
+	ServerVersion   string `json:"serverVersion"`
+	ProjectionLevel string `json:"projectionLevel"`
+	Status          string `json:"status"`
+	Created         string `json:"created"`
 }
 
 type GetManagedClusterRequest struct {
@@ -54,7 +55,7 @@ func (c *Client) ManagedClusterGet(ctx context.Context, req *GetManagedClusterRe
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "getting managed cluster")
+		return nil, translateStatusCode(resp.StatusCode, "getting managed cluster", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

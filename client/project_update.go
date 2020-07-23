@@ -40,7 +40,7 @@ func (c *Client) ProjectUpdate(ctx context.Context, req *UpdateProjectRequest) e
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "updating project")
+		return translateStatusCode(resp.StatusCode, "updating project", resp.Body)
 	}
 
 	return nil

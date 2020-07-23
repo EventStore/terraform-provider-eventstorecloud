@@ -33,7 +33,7 @@ func (c *Client) NetworkUpdate(ctx context.Context, req *UpdateNetworkRequest) e
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "updating network")
+		return translateStatusCode(resp.StatusCode, "updating network", resp.Body)
 	}
 
 	return nil

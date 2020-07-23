@@ -30,6 +30,25 @@ func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringSta
 			continue
 		}
 
+		if req.State == "deleted" {
+			return &resp.Peering, nil
+		}
+
+		switch resp.Peering.Provider {
+		case "aws":
+			if _, has := resp.Peering.ProviderPeeringMetadata["peeringLinkId"]; !has {
+				time.Sleep(5 * time.Second)
+				continue
+			}
+		case "gcp":
+			_, hasProject := resp.Peering.ProviderPeeringMetadata["projectId"]
+			_, hasNetwork := resp.Peering.ProviderPeeringMetadata["networkId"]
+			if !hasProject || !hasNetwork {
+				time.Sleep(5 * time.Second)
+				continue
+			}
+		}
+
 		return &resp.Peering, nil
 	}
 }

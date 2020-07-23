@@ -31,7 +31,7 @@ func (c *Client) ProjectDelete(ctx context.Context, req *DeleteProjectRequest) e
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "deleting project")
+		return translateStatusCode(resp.StatusCode, "deleting project", resp.Body)
 	}
 
 	return nil

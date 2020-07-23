@@ -32,7 +32,7 @@ func (c *Client) PeeringDelete(ctx context.Context, req *DeletePeeringRequest) e
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "deleting peering")
+		return translateStatusCode(resp.StatusCode, "deleting peering", resp.Body)
 	}
 
 	return nil
