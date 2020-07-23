@@ -43,7 +43,7 @@ func (c *Client) ProjectGet(ctx context.Context, req *GetProjectRequest) (*GetPr
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "getting project")
+		return nil, translateStatusCode(resp.StatusCode, "getting project", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

@@ -47,7 +47,7 @@ func (c *Client) NetworkCreate(ctx context.Context, req *CreateNetworkRequest) (
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "creating network")
+		return nil, translateStatusCode(resp.StatusCode, "creating network", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

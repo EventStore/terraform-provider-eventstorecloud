@@ -32,7 +32,7 @@ func (c *Client) NetworkDelete(ctx context.Context, req *DeleteNetworkRequest) e
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "deleting network")
+		return translateStatusCode(resp.StatusCode, "deleting network", resp.Body)
 	}
 
 	return nil

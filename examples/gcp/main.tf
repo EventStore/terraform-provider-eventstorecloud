@@ -24,7 +24,7 @@ resource "eventstorecloud_network" "chicken_window" {
 
 	resource_provider = "gcp"
 	region = "us-central1"
-	cidr_block = "172.21.0.0/16"
+	cidr_block = "172.29.0.0/16"
 }
 
 resource "eventstorecloud_peering" "peering" {
@@ -50,8 +50,9 @@ resource "eventstorecloud_managed_cluster" "wings" {
 	topology = "three-node-multi-zone"
 	instance_type = "F1"
 	disk_size = 16
-	disk_type = "gp2"
+	disk_type = "ssd"
 	server_version = "20.6"
+	projection_level = "user"
 }
 
 output "chicken_window_id" {
@@ -60,6 +61,10 @@ output "chicken_window_id" {
 
 output "chicken_window_net" {
 	value = eventstorecloud_network.chicken_window
+}
+
+output "chicken_window_peer" {
+	value = eventstorecloud_peering.peering
 }
 
 output "wings_cluster_dns_name" {

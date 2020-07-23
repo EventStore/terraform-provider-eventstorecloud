@@ -52,7 +52,7 @@ func (c *Client) PeeringGet(ctx context.Context, req *GetPeeringRequest) (*GetPe
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "getting peering")
+		return nil, translateStatusCode(resp.StatusCode, "getting peering", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

@@ -41,7 +41,7 @@ func (c *Client) PeeringUpdate(ctx context.Context, req *UpdatePeeringRequest) e
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "updating peering")
+		return translateStatusCode(resp.StatusCode, "updating peering", resp.Body)
 	}
 
 	return nil

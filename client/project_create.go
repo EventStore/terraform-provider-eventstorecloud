@@ -43,7 +43,7 @@ func (c *Client) ProjectCreate(ctx context.Context, req *CreateProjectRequest) (
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "creating project")
+		return nil, translateStatusCode(resp.StatusCode, "creating project", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

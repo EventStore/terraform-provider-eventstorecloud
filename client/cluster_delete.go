@@ -32,7 +32,7 @@ func (c *Client) ManagedClusterDelete(ctx context.Context, req *DeleteManagedClu
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "deleting managed cluster")
+		return translateStatusCode(resp.StatusCode, "deleting managed cluster", resp.Body)
 	}
 
 	return nil
