@@ -10,7 +10,9 @@ variable "peering_route" {
 	type = string
 }
 
-provider "eventstorecloud" {}
+provider "eventstorecloud" {
+
+}
 
 resource "eventstorecloud_project" "chicken_window" {
 	name = "Improved Chicken Window"
@@ -59,6 +61,10 @@ output "chicken_window_id" {
 
 output "chicken_window_net" {
 	value = eventstorecloud_network.chicken_window
+}
+
+output "chicken_window_peering" {
+	value = eventstorecloud_peering.peering
 }
 
 output "wings_cluster_dns_name" {
