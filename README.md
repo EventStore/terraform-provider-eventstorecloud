@@ -196,8 +196,11 @@ resource "eventstorecloud_peering" "example" {
 As well as the input arguments, the following properties are exposed:
 
 - `id` - (`string`) - the ID of the peering.
-- `provider_peering_id` - (`string`) - the resource-provider-assigned identifier of the peering. This can be used in other
-  Terraform code to accept the peering link.
+- `provider_metadata` - metadata supplied by the resource provider cloud about the peering link:
+   - `aws_peering_link_id` - (`string`) - the ID of the peering link in AWS. Empty if the resource provider is not AWS.
+   - `gcp_project_id` - (`string`) - the project ID of the peering link in GCP. Empty if the resource provider is not GCP.
+   - `gcp_network_name` - (`string`) - the network name for the peering link in GCP. Empty if the resource provider is not GCP.
+   - `gcp_network_id` - (`string`) - GCP Network ID in URL format which can be passed to `google_compute_network_peering` resources. Empty if the peering Provider is not GCP.
 
 ## Resource `eventstorecloud_managed_cluster`
 
@@ -246,7 +249,8 @@ resource "eventstorecloud_managed_cluster" "example" {
 - `instance_type` - (`string`, Required) - the size of the instances to use in the managed cluster. This determines
   the performance of the cluster. Valid values are `F1` and `C4`.
 - `disk_size` - (`int`, Required) - the size of the data disks in gigabytes. This determines how much data can be
-  stored by the cluster. The minimum size is 8, and the maximum 4096, though account limits may impact this further.
+  stored by the cluster. The minimum size is 8GB for a cluster in AWS and 10GB for a cluster in GCP. The maximum size
+  is 4096GB, though account limits may impact this further.
 - `disk_type` - (`string`, Required) - the type of data disks, which helps determine the performance profile of the
   cluster. Currently `gp2` is the only option.
 - `server_version` - (`string`, Required) - the version of Event Store Server with which the cluster is provisioned.

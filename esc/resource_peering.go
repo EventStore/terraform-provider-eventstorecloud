@@ -97,17 +97,12 @@ func resourcePeering() *schema.Resource {
 							Computed:    true,
 						},
 						"gcp_network_id": {
-							Description: "GCP Network ID in URL format. Can be passed to google_compute_network_peering resources. Empty is the peering Provider is not GCP.",
+							Description: "GCP Network ID in URL format. Can be passed to google_compute_network_peering resources. Empty if the peering Provider is not GCP.",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
 					},
 				},
-			},
-			"provider_peering_id": {
-				Description: "The resource-provider-assigned identifier for the peering",
-				Type:        schema.TypeString,
-				Computed:    true,
 			},
 		},
 	}
