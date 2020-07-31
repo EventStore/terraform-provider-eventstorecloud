@@ -16,6 +16,7 @@ func resourceManagedCluster() *schema.Resource {
 		Create: resourceManagedClusterCreate,
 		Exists: resourceManagedClusterExists,
 		Read:   resourceManagedClusterRead,
+		Update: resourceManagedClusterUpdate,
 		Delete: resourceManagedClusterDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -58,7 +59,6 @@ func resourceManagedCluster() *schema.Resource {
 			"disk_size": {
 				Description:  "Size of the data disks, in gigabytes",
 				Required:     true,
-				ForceNew:     true,
 				Type:         schema.TypeInt,
 				ValidateFunc: validation.IntBetween(8, 4096),
 			},
@@ -165,10 +165,14 @@ func resourceManagedClusterExists(d *schema.ResourceData, meta interface{}) (boo
 		ClusterID:      clusterId,
 	}
 
-	_, err := c.client.ManagedClusterGet(context.Background(), request)
+	cluster, err := c.client.ManagedClusterGet(context.Background(), request)
 	if err != nil {
 		return false, nil
 	}
+	if cluster.ManagedCluster.Status == client.StateDeleted {
+		return false, nil
+	}
+
 
 	return true, nil
 }
@@ -226,6 +230,42 @@ func resourceManagedClusterRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	if err := d.Set("dns_name", fmt.Sprintf("%s.mesdb.eventstore.cloud", resp.ManagedCluster.ClusterID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func resourceManagedClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	c := meta.(*providerContext)
+
+	projectId := d.Get("project_id").(string)
+	clusterId := d.Id()
+
+	if d.HasChange("disk_size") {
+		oldI, newI := d.GetChange("disk_size")
+		oldSize, newSize := oldI.(int), newI.(int)
+		if newSize <= oldSize {
+			return fmt.Errorf("Disks cannot be made smaller - must be %dGB or larger.", oldSize)
+		}
+
+		request := &client.ExpandManagedClusterDiskRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			DiskSizeGB:     int32(newSize),
+		}
+		if err := c.client.ManagedClusterExpandDisk(context.Background(), request); err != nil {
+			return err
+		}
+
+		if err := c.client.ManagedClusterWaitForState(context.Background(), &client.WaitForManagedClusterStateRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			State:          "available",
+		}); err != nil {
+			return err
+		}
 	}
 
 	return nil

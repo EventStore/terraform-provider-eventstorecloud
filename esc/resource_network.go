@@ -99,8 +99,11 @@ func resourceNetworkExists(d *schema.ResourceData, meta interface{}) (bool, erro
 		NetworkID:      networkId,
 	}
 
-	_, err := c.client.NetworkGet(context.Background(), request)
+	network, err := c.client.NetworkGet(context.Background(), request)
 	if err != nil {
+		return false, nil
+	}
+	if network.Network.Status == client.StateDeleted {
 		return false, nil
 	}
 
