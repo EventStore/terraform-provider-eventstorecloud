@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -76,9 +77,8 @@ func resourcePeering() *schema.Resource {
 
 			"provider_metadata": {
 				Description: "Metadata about the remote end of the peering connection",
-				Type:        schema.TypeList,
+				Type:        schema.TypeMap,
 				Computed:    true,
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"aws_peering_link_id": {
@@ -87,12 +87,17 @@ func resourcePeering() *schema.Resource {
 							Computed:    true,
 						},
 						"gcp_project_id": {
-							Description: "AWS Project ID for the peering. Empty if the peering Provider is not GCP.",
+							Description: "GCP Project ID for the peering. Empty if the peering Provider is not GCP.",
+							Type:        schema.TypeString,
+							Computed:    true,
+						},
+						"gcp_network_name": {
+							Description: "GCP Network Name for the peering. Empty if the peering Provider is not GCP.",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
 						"gcp_network_id": {
-							Description: "AWS Network ID for the peering. Empty if the peering Provider is not GCP.",
+							Description: "GCP Network ID in URL format. Can be passed to google_compute_network_peering resources. Empty is the peering Provider is not GCP.",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
@@ -125,15 +130,21 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 			return errors.New("GCP peering link missing remote peering link project identifier")
 		}
 		if val, hasVal := metadata["networkId"]; hasVal {
-			providerPeeringMetadata["gcp_network_id"] = val
+			providerPeeringMetadata["gcp_network_name"] = val
 		} else {
 			return errors.New("GCP peering link missing remote peering link network identifier")
 		}
+		providerPeeringMetadata["gcp_network_id"] = path.Join(
+			"projects",
+			providerPeeringMetadata["gcp_project_id"],
+			"global",
+			"networks",
+			providerPeeringMetadata["gcp_network_name"])
 	default:
 		return fmt.Errorf("Unknown provider %q from Event Store Cloud API", provider)
 	}
 
-	return d.Set("provider_metadata", []interface{}{providerPeeringMetadata})
+	return d.Set("provider_metadata", providerPeeringMetadata)
 }
 
 func resourcePeeringCreate(d *schema.ResourceData, meta interface{}) error {
@@ -190,8 +201,11 @@ func resourcePeeringExists(d *schema.ResourceData, meta interface{}) (bool, erro
 		PeeringID:      peeringId,
 	}
 
-	_, err := c.client.PeeringGet(context.Background(), request)
+	peering, err := c.client.PeeringGet(context.Background(), request)
 	if err != nil {
+		return false, nil
+	}
+	if peering.Peering.Status == client.StateDeleted {
 		return false, nil
 	}
 
