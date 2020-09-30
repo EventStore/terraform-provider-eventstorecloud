@@ -11,7 +11,7 @@ import (
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
-var defaultTokenStore = filepath.Join(os.Getenv("HOME"), ".bespin", "tokens")
+var defaultTokenStore = filepath.Join(os.Getenv("HOME"), ".esctf", "tokens")
 
 // Provider returns a terraform.ResourceProvider.
 func Provider() terraform.ResourceProvider {
