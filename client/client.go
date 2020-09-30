@@ -26,7 +26,12 @@ func (config *Config) validate() error {
 
 	if _, err := os.Stat(config.TokenStore); err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("token Store file %q does not exist", config.TokenStore)
+			err := os.MkdirAll(config.TokenStore, 0700)
+			if err != nil {
+				return fmt.Errorf("cannot create path %q: %w", config.TokenStore, err)
+			}
+
+			return nil
 		}
 
 		return fmt.Errorf("error reading Token Store %q: %w", config.TokenStore, err)
