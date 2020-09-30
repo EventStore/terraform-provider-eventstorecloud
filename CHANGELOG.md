@@ -1,4 +1,4 @@
-# Unreleased
+# 1.1.2 (September 30, 2020)
 
 ENHANCEMENTS:
 
@@ -7,6 +7,9 @@ ENHANCEMENTS:
 * `resource/eventstorecloud_network`: deleted networks are correctly removed from state. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
 * `resource/eventstorecloud_peering`: `provider_metadata` now contains `gcp_project_name` and `gcp_project_id`. `gcp_project_id` is suitable for passing to `google_compute_network_peering` resources. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
 * `resource/eventstorecloud_peering`: deleted peerings are correctly removed from state. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
+
+FIXES:
+* ESC Client auth token directory is now created if it does not exist
 
 ## 1.1.0 (July 23, 2020)
 
