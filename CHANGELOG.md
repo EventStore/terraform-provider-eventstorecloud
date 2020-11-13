@@ -1,3 +1,9 @@
+# 1.1.3 (Nov 13, 2020)
+
+FIXES:
+
+* refresh token was not properly passed to ESC client 
+
 # 1.1.2 (September 30, 2020)
 
 ENHANCEMENTS:
@@ -9,6 +15,7 @@ ENHANCEMENTS:
 * `resource/eventstorecloud_peering`: deleted peerings are correctly removed from state. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
 
 FIXES:
+
 * ESC Client auth token directory is now created if it does not exist
 
 ## 1.1.0 (July 23, 2020)
