@@ -6,14 +6,13 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"github.com/lestrrat-go/jwx/jwa"
+	"github.com/lestrrat-go/jwx/jwt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/lestrrat-go/jwx/jwa"
-	"github.com/lestrrat-go/jwx/jwt"
 )
 
 type accessToken string
@@ -27,12 +26,26 @@ func (a accessToken) IsValid() (jwt.Token, bool) {
 	rsaPublicKey := cert.PublicKey.(*rsa.PublicKey)
 
 	token, err := jwt.ParseString(string(a),
-		jwt.WithVerify(jwa.RS256, rsaPublicKey),
-		jwt.WithAcceptableSkew(30*time.Second),
-		jwt.WithAudience("https://api.eventstore.cloud"),
-		jwt.WithAudience("qB1dK9gAx6U1H1miH4LfwCp4Q1y3qSeZ"))
+		jwt.WithVerify(jwa.RS256, rsaPublicKey))
+
+	// Invalid signature
 	if err != nil {
-		return nil, false
+		return token, false
+	}
+
+	err = jwt.Verify(token, jwt.WithAcceptableSkew(30*time.Second))
+
+	// Token has expired
+	if err != nil {
+		return token, false
+	}
+
+	for _, tokenAud := range token.Audience() {
+		for _, aud := range []string{"https://api.eventstore.cloud", "qB1dK9gAx6U1H1miH4LfwCp4Q1y3qSeZ"} {
+			if aud == tokenAud {
+				return token, true
+			}
+		}
 	}
 
 	return token, true
@@ -72,7 +85,6 @@ func (c *Client) accessToken(force bool) (*tokenData, error) {
 
 	log.Println("[INFO] In the IDP")
 
-
 	// Do the refresh
 	idpURL := *c.idpURL
 	idpURL.Path = "/oauth/token"
@@ -84,12 +96,12 @@ func (c *Client) accessToken(force bool) (*tokenData, error) {
 
 	resp, err := c.httpClient.PostForm(idpURL.String(), form)
 	if err != nil {
-		return nil, fmt.Errorf("error requesting refresh token: %w", err)
+		return nil, fmt.Errorf("error requesting access token: %w", err)
 	}
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error %d requesting refresh token", resp.StatusCode)
+		return nil, fmt.Errorf("error %d requesting access token", resp.StatusCode)
 	}
 
 	decoder := json.NewDecoder(resp.Body)
