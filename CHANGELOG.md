@@ -1,10 +1,10 @@
-# 1.1.3 (Nov 13, 2020)
+# 1.3.0 (Nov 13, 2020)
 
 FIXES:
 
 * refresh token was not properly passed to ESC client 
 
-# 1.1.2 (September 30, 2020)
+# 1.2.0 (September 30, 2020)
 
 ENHANCEMENTS:
 
