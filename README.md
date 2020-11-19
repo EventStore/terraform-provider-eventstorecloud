@@ -28,7 +28,7 @@ options which may be useful.
 
 Provider configuration options are:
 
-- `token` - (`ESC_TOKEN` via the environment) - *Required* - an access token for Event Store Cloud.
+- `token` - (`ESC_TOKEN` via the environment) - *Required* - an access token for Event Store Cloud. Currently this token must be created and displayed with the esc cli tool [esc cli](https://github.com/EventStore/esc). The token id displayed in the cloud console is not a valid token.
 - `organization_id` - (`ESC_ORG_ID` via the environment) - *Required* - the identifier of the Event Store Cloud
   organization into which to provision resources.
 
@@ -249,8 +249,7 @@ resource "eventstorecloud_managed_cluster" "example" {
 - `instance_type` - (`string`, Required) - the size of the instances to use in the managed cluster. This determines
   the performance of the cluster. Valid values are `F1` and `C4`.
 - `disk_size` - (`int`, Required) - the size of the data disks in gigabytes. This determines how much data can be
-  stored by the cluster. The minimum size is 8GB for a cluster in AWS and 10GB for a cluster in GCP. The maximum size
-  is 4096GB, though account limits may impact this further.
+  stored by the cluster. The minimum size is 8GB for a cluster in AWS and 10GB for a cluster in GCP.
 - `disk_type` - (`string`, Required) - the type of data disks, which helps determine the performance profile of the
   cluster. Currently `gp2` is the only option.
 - `server_version` - (`string`, Required) - the version of Event Store Server with which the cluster is provisioned.
@@ -275,7 +274,7 @@ The Event Store Cloud Terraform provider is released under the Mozilla Public Li
 providers. We welcome pull requests and issues! We adhere to the [Contributor Covenant][codeofconduct] Code of Conduct,
 and ask that contributors familiarize themselves with it. We also have a set of [Contributing Guidelines][contributing].
 
-[terraform]: https://terraform.io
+[terraform]: (https://terraform.io)
 [esc]: https://eventstore.com/event-store-cloud/
 [codeofconduct]: https://github.com/EventStore/terraform-provider-eventstorecloud/tree/trunk/CODE-OF-CONDUCT.md
 [contributing]: https://github.com/EventStore/terraform-provider-eventstorecloud/tree/trunk/CONTRIBUTING.md
