@@ -4,9 +4,7 @@ This repository contains a [Terraform][terraform] provider for provisioning reso
 
 # Installation
 
-We provide binary releases for macOS, Windows and Linux via GitHub releases. In order for Terraform to find
-the plugin, the appropriate binary must be placed into the Terraform third-party plugin directory, the location
-of which varies by operating system:
+We provide binary releases for macOS, Windows and Linux via GitHub releases. In order for Terraform to find the plugin, the appropriate binary must be placed into the Terraform third-party plugin directory, the location of which varies by operating system:
 
 - `%APPDATA%\terraform.d\plugins` on Windows
 - `~/.terraform.d/plugins` on macOS or Linux
@@ -20,6 +18,18 @@ On macOS and Linux, you can download the provider using the following commands:
 
 If you prefer to install from source, use the `make install` target in this repository. You'll need a Go 1.13+
 development environment.
+
+## Terraform 0.13
+In the latest version of terraform they have changed how plugins work. The appropriate binary must now be placed in a folder following the pattern:
+
+```
+$PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/
+```
+
+On macOS and Linux, you can download the provider using the following commands:
+
+- macOS: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/darwin_amd64/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.3.0/terraform-provider-eventstorecloud_darwin_amd64`
+- Linux: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/linux_amd64 -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.3.0/terraform-provider-eventstorecloud_linux_amd64`
 
 # Provider Configuration
 
@@ -37,6 +47,20 @@ Provider configuration options are:
   instance.
 - `token_store` - (`ESC_TOKEN_STORE` via the environment) - *Optional* - the location on the local filesystem
   of the token cache. This is shared with the Event Store Cloud CLI.
+
+## Terraform 0.13
+Terraform 0.13 no longer automatically picks up plugins from the plugins directory. You have to explicitly define it in the terraform file as follows:
+
+```
+terraform {
+  required_providers {
+    eventstorecloud = {
+      source  = "eventstore.com/eventstore/eventstorecloud"
+      version = "1.3.0"
+    }
+  }
+}
+```
 
 # Resources
 
