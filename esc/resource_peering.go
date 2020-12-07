@@ -135,6 +135,8 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 			"global",
 			"networks",
 			providerPeeringMetadata["gcp_network_name"])
+	case "azure":
+		break
 	default:
 		return fmt.Errorf("Unknown provider %q from Event Store Cloud API", provider)
 	}
