@@ -200,7 +200,7 @@ resource "eventstorecloud_peering" "example" {
 
 - `name` - (`string`, Required) - the name of the peering.
 - `project_id` - (`string`, Required) - the ID of the project in which the peering should be created.
-- `network_id` - (`string`, Requried) - the ID of the network into which the peering should be created.
+- `network_id` - (`string`, Required) - the ID of the network into which the peering should be created.
 - `peer_resource_provider` - (`string`, Required) - the name of the cloud in which the customer managed network exists.
   Currently this must be the same as the resource provider of the Event Store Cloud network.
 - `peer_network_region` - (`string`, Required) - the name of the region in which the customer managed network exists.
