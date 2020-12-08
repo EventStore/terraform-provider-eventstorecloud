@@ -148,9 +148,9 @@ resource "eventstorecloud_network" "example" {
   values for `resource_provider` are `aws`, `gcp` and `azure`.
 - `region` - (`string`, Required) - the name of the region in which the network should be created. Region names must
   be in the format used by the resource provider, for example `us-west-2` for AWS, or `East US` for Azure.
-- `cidr_block` - (`string`, Required) - the address space of the network. The maximum prefix length is `/16`, and the
-  minimum is `/24`. Smaller networks can hold fewer managed clusters, but may be easier to peer to infrastructure
-  hosting applications.
+- `cidr_block` - (`string`, Required) - the address space of the network. The maximum prefix length is `/9` however what
+  is allowed is provider dependent, and the minimum is `/24`. Smaller networks can hold fewer managed clusters, but may 
+  be easier to peer to infrastructure hosting applications.
 
 ### Attributes
 
