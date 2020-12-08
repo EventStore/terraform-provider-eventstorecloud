@@ -205,7 +205,7 @@ resource "eventstorecloud_peering" "example" {
   Currently this must be the same as the resource provider of the Event Store Cloud network.
 - `peer_network_region` - (`string`, Required) - the name of the region in which the customer managed network exists.
   Currently this must be the same as the region of the Event Store Cloud network, and specified in the format used by the
-  customer cloud - for example `us-west-2` in AWS, and `East US` for Azure.
+  customer cloud - for example `us-west-2` in AWS, and `westus2` for Azure.
 - `peer_account_id` - (`string`, Required) - the account identifier for the account in which the customer-managed network
   exists. The required format is dependent on the target cloud:
     - AWS: The Account ID (12 digit numeric value available from the account drop down in the AWS console)
