@@ -70,7 +70,7 @@ func resourcePeering() *schema.Resource {
 				Required:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validation.IsCIDRNetwork(9, 27),
+					ValidateFunc: validation.IsCIDRNetwork(8, 27),
 				},
 				Set: schema.HashString,
 			},
