@@ -70,7 +70,7 @@ func resourcePeering() *schema.Resource {
 				Required:    true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validation.IsCIDRNetwork(16, 27),
+					ValidateFunc: validation.IsCIDRNetwork(8, 27),
 				},
 				Set: schema.HashString,
 			},
@@ -135,6 +135,8 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 			"global",
 			"networks",
 			providerPeeringMetadata["gcp_network_name"])
+	case "azure":
+		break
 	default:
 		return fmt.Errorf("Unknown provider %q from Event Store Cloud API", provider)
 	}

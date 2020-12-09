@@ -47,7 +47,7 @@ func resourceNetwork() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
-				ValidateFunc: validation.IsCIDRNetwork(16, 24),
+				ValidateFunc: validation.IsCIDRNetwork(8, 24),
 			},
 			"name": {
 				Description: "Human-friendly name for the network",

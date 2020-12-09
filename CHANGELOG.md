@@ -1,3 +1,13 @@
+# 1.4.0 (Dec 9, 2020)
+
+ENHANCEMENTS:
+
+* Azure support
+
+FIXES:
+
+* Increase the allowed CIDR range for networks and peerings to accommodate GCP and Azure
+
 # 1.3.0 (Nov 13, 2020)
 
 FIXES:

@@ -13,8 +13,8 @@ Alternatively, the binary can be placed alongside the main `terraform` binary.
 
 On macOS and Linux, you can download the provider using the following commands:
 
-- macOS: `curl -o ~/.terraform.d/plugins/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.3.0/terraform-provider-eventstorecloud_darwin_amd64`
-- Linux: `curl -o ~/.terraform.d/plugins/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.3.0/terraform-provider-eventstorecloud_linux_amd64`
+- macOS: `curl -o ~/.terraform.d/plugins/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_darwin_amd64`
+- Linux: `curl -o ~/.terraform.d/plugins/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_linux_amd64`
 
 If you prefer to install from source, use the `make install` target in this repository. You'll need a Go 1.13+
 development environment.
@@ -28,8 +28,8 @@ $PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/
 
 On macOS and Linux, you can download the provider using the following commands:
 
-- macOS: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/darwin_amd64/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.3.0/terraform-provider-eventstorecloud_darwin_amd64`
-- Linux: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/linux_amd64 -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.3.0/terraform-provider-eventstorecloud_linux_amd64`
+- macOS: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/darwin_amd64/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_darwin_amd64`
+- Linux: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/linux_amd64 -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_linux_amd64`
 
 # Provider Configuration
 
@@ -148,9 +148,9 @@ resource "eventstorecloud_network" "example" {
   values for `resource_provider` are `aws`, `gcp` and `azure`.
 - `region` - (`string`, Required) - the name of the region in which the network should be created. Region names must
   be in the format used by the resource provider, for example `us-west-2` for AWS, or `East US` for Azure.
-- `cidr_block` - (`string`, Required) - the address space of the network. The maximum prefix length is `/16`, and the
-  minimum is `/24`. Smaller networks can hold fewer managed clusters, but may be easier to peer to infrastructure
-  hosting applications.
+- `cidr_block` - (`string`, Required) - the address space of the network. The maximum prefix length is `/9` however what
+  is allowed is provider dependent, and the minimum is `/24`. Smaller networks can hold fewer managed clusters, but may 
+  be easier to peer to infrastructure hosting applications.
 
 ### Attributes
 
@@ -200,12 +200,12 @@ resource "eventstorecloud_peering" "example" {
 
 - `name` - (`string`, Required) - the name of the peering.
 - `project_id` - (`string`, Required) - the ID of the project in which the peering should be created.
-- `network_id` - (`string`, Requried) - the ID of the network into which the peering should be created.
+- `network_id` - (`string`, Required) - the ID of the network into which the peering should be created.
 - `peer_resource_provider` - (`string`, Required) - the name of the cloud in which the customer managed network exists.
   Currently this must be the same as the resource provider of the Event Store Cloud network.
 - `peer_network_region` - (`string`, Required) - the name of the region in which the customer managed network exists.
   Currently this must be the same as the region of the Event Store Cloud network, and specified in the format used by the
-  customer cloud - for example `us-west-2` in AWS, and `East US` for Azure.
+  customer cloud - for example `us-west-2` in AWS, and `westus2` for Azure.
 - `peer_account_id` - (`string`, Required) - the account identifier for the account in which the customer-managed network
   exists. The required format is dependent on the target cloud:
     - AWS: The Account ID (12 digit numeric value available from the account drop down in the AWS console)
