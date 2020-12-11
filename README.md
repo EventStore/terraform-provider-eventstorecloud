@@ -28,8 +28,8 @@ $PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/
 
 On macOS and Linux, you can download the provider using the following commands:
 
-- macOS: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/darwin_amd64/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_darwin_amd64`
-- Linux: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.3.0/linux_amd64 -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_linux_amd64`
+- macOS: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.4.0/darwin_amd64/terraform-provider-eventstorecloud -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_darwin_amd64`
+- Linux: `curl -o ~/.terraform.d/plugins/eventstore.com/eventstore/eventstorecloud/1.4.0/linux_amd64 -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.4.0/terraform-provider-eventstorecloud_linux_amd64`
 
 # Provider Configuration
 
