@@ -30,7 +30,7 @@ configuration.
 terraform {
   required_providers {
     eventstorecloud = {
-      source  = "eventstore.com/eventstore/eventstorecloud"
+      source = "EventStore/eventstorecloud"
       version = "1.5.0"
     }
   }
