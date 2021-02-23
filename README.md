@@ -15,8 +15,8 @@ Alternatively, the binary can be placed alongside the main `terraform` binary.
 
 On macOS and Linux, you can download the provider using the following commands:
 
-- macOS: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.1/terraform-provider-eventstorecloud_1.5.1_darwin_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud ~/.terraform.d/plugins/terraform-provider-eventstorecloud`
-- Linux: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.1/terraform-provider-eventstorecloud_1.5.1_linux_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud ~/.terraform.d/plugins/terraform-provider-eventstorecloud`
+- macOS: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.1/terraform-provider-eventstorecloud_1.5.1_darwin_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud_v1.5.1 ~/.terraform.d/plugins/terraform-provider-eventstorecloud_v1.5.1`
+- Linux: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.1/terraform-provider-eventstorecloud_1.5.1_linux_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud_v1.5.1 ~/.terraform.d/plugins/terraform-provider-eventstorecloud_v1.5.1`
 
 If you prefer to install from source, use the `make install` target in this repository. You'll need a Go 1.13+
 development environment.
@@ -245,7 +245,7 @@ resource "eventstorecloud_managed_cluster" "example" {
 	project_id = eventstorecloud_network.example.project_id
 	network_id = eventstorecloud_network.example.id
 
-	topology = "three-node-multi-az"
+	topology = "three-node-multi-zone"
 	instance_type = "F1"
 	disk_size = 24
 	disk_type = "gp2"
@@ -260,7 +260,7 @@ resource "eventstorecloud_managed_cluster" "example" {
 - `network_id` - (`string`, Required) - the ID of the network in which the managed cluster should be created. This
   determines which cloud and region the managed cluster will be hosted in.
 - `topology` - (`string`, Required) - the topology of the managed cluster. This determines the fault tolerance of
-  the cluster. Valid values are `single-node` and `three-node-multi-az`. The actual implementation of each topology
+  the cluster. Valid values are `single-node` and `three-node-multi-zone`. The actual implementation of each topology
   is specific to the resource provider.
 - `instance_type` - (`string`, Required) - the size of the instances to use in the managed cluster. This determines
   the performance of the cluster. Valid values are `F1` and `C4`.
