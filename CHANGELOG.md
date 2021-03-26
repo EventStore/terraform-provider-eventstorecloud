@@ -1,3 +1,9 @@
+# 1.5.2 (Mar 26, 2021)
+
+FIXES:
+
+* Resources will now fail when encountering defunct state, instead of waiting for timeout
+
 # 1.5.1 (Jan 26, 2021)
 
 ENHANCEMENTS:
