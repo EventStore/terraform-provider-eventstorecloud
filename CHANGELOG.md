@@ -1,3 +1,9 @@
+# 1.5.3 (Apr 8, 2021)
+
+Enhancements:
+
+* Add eventstorecloud_scheduled_backup resource
+
 # 1.5.2 (Mar 26, 2021)
 
 FIXES:
