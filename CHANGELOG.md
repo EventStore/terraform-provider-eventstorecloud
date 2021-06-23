@@ -1,3 +1,9 @@
+# 1.5.4 (Jun 23, 2021)
+
+Enhancements:
+
+* Add eventstorecloud_integration resource
+
 # 1.5.3 (Apr 8, 2021)
 
 Enhancements:
