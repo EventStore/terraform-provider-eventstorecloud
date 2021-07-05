@@ -174,17 +174,17 @@ resource "eventstorecloud_network" "example" {
 }
 
 resource "eventstorecloud_peering" "example" {
-	name = "Peering from AWS into Example Network"
+  name = "Peering from AWS into Example Network"
 
-	project_id = eventstorecloud_network.example.project_id
-	network_id = eventstorecloud_network.example.id
+  project_id = eventstorecloud_network.example.project_id
+  network_id = eventstorecloud_network.example.id
 
-	peer_resource_provider = eventstorecloud_network.example.resource_provider
-	peer_network_region = eventstorecloud_network.example.region
+  peer_resource_provider = eventstorecloud_network.example.resource_provider
+  peer_network_region = eventstorecloud_network.example.region
 
-	peer_account_id = "<Customer AWS Account ID>"
-	peer_network_id = "<Customer VPC ID>"
-	routes = ["<Address space of the customer VPC>"]
+  peer_account_id = "<Customer AWS Account ID>"
+  peer_network_id = "<Customer VPC ID>"
+  routes = ["<Address space of the customer VPC>"]
 }
 ```
 
@@ -240,16 +240,16 @@ resource "eventstorecloud_network" "example" {
 }
 
 resource "eventstorecloud_managed_cluster" "example" {
-	name = "Example Cluster"
+  name = "Example Cluster"
 
-	project_id = eventstorecloud_network.example.project_id
-	network_id = eventstorecloud_network.example.id
+  project_id = eventstorecloud_network.example.project_id
+  network_id = eventstorecloud_network.example.id
 
-	topology = "three-node-multi-zone"
-	instance_type = "F1"
-	disk_size = 24
-	disk_type = "gp2"
-	server_version = "20.6"
+  topology = "three-node-multi-zone"
+  instance_type = "F1"
+  disk_size = 24
+  disk_type = "gp2"
+  server_version = "20.6"
 }
 ```
 
@@ -292,13 +292,13 @@ Creates a new scheduled backup.
 
 ```hcl
 resource "eventstorecloud_scheduled_backup" "daily" {
-    project_id = eventstorecloud_project.example.id
-    schedule = "0 12 * * */1"
-    description = "Creates a backup once a day at 12:00"
+  project_id = eventstorecloud_project.example.id
+  schedule = "0 12 * * */1"
+  description = "Creates a backup once a day at 12:00"
     
-    source_cluster_id = eventstorecloud_managed_cluster.example.id
-    backup_description = "{cluster} Daily Backup {datetime:RFC3339}"
-    max_backup_count = 3
+  source_cluster_id = eventstorecloud_managed_cluster.example.id
+  backup_description = "{cluster} Daily Backup {datetime:RFC3339}"
+  max_backup_count = 3
 }
 ```
 
@@ -317,7 +317,7 @@ As well as the input arguments, the following properties are exposed:
 
 - `id` - (`string`) - the ID of the created job. This may change if the job is updated, as doing so will force the job to be recreated.
 
-## Resource `eventstorecloud_integrations`
+## Resource `eventstorecloud_integration`
 
 Creates a new integration resource.
 
@@ -325,25 +325,25 @@ Creates a new integration resource.
 
 ```hcl
 resource "eventstorecloud_integration" "opsgenie_issues" {
-    project_id = var.project_id
-    description = "create OpsGenie alerts from issues"
-    data = {
-        sink = "opsGenie"
-        api_key = "<secret OpsGenie key here>"
-        source = "issues"
-    }
+  project_id = var.project_id
+  description = "create OpsGenie alerts from issues"
+  data = {
+    sink = "opsGenie"
+    api_key = "<secret OpsGenie key here>"
+    source = "issues"
+  }
 }
 
 
 resource "eventstorecloud_integration" "slack_notifications" {
-    project_id = var.project_id
-    description = "send Slack a message when a notification happens"
-    data = {
-        sink = "slack"
-        token = "<secret token here>"        
-        channel_id = "#esc-cluster-notifications"
-        source = "notifications"
-    }
+  project_id = var.project_id
+  description = "send Slack a message when a notification happens"
+  data = {
+    sink = "slack"
+    token = "<secret token here>"        
+    channel_id = "#esc-cluster-notifications"
+    source = "notifications"
+  }
 }
 ```
 
