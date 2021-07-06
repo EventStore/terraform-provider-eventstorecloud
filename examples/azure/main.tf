@@ -11,7 +11,7 @@ variable "peering_route" {
 }
 
 provider "eventstorecloud" {
-  
+
 }
 
 resource "eventstorecloud_project" "chicken_window" {
@@ -24,8 +24,8 @@ resource "eventstorecloud_network" "chicken_window" {
   project_id = eventstorecloud_project.chicken_window.id
 
   resource_provider = "azure"
-  region = "westus2"
-  cidr_block = "10.2.0.0/16"
+  region            = "westus2"
+  cidr_block        = "10.2.0.0/16"
 }
 
 resource "eventstorecloud_peering" "peering" {
@@ -35,11 +35,11 @@ resource "eventstorecloud_peering" "peering" {
   network_id = eventstorecloud_network.chicken_window.id
 
   peer_resource_provider = eventstorecloud_network.chicken_window.resource_provider
-  peer_network_region = eventstorecloud_network.chicken_window.region
+  peer_network_region    = eventstorecloud_network.chicken_window.region
 
   peer_account_id = var.peering_tenant_id
   peer_network_id = var.peering_network_id
-  routes = [var.peering_route]
+  routes          = [var.peering_route]
 }
 
 resource "eventstorecloud_managed_cluster" "wings" {
@@ -48,11 +48,11 @@ resource "eventstorecloud_managed_cluster" "wings" {
   project_id = eventstorecloud_network.chicken_window.project_id
   network_id = eventstorecloud_network.chicken_window.id
 
-  topology = "three-node-multi-zone"
-  instance_type = "F1"
-  disk_size = 10
-  disk_type = "premium-ssd-lrs"
-  server_version = "20.6"
+  topology         = "three-node-multi-zone"
+  instance_type    = "F1"
+  disk_size        = 10
+  disk_type        = "premium-ssd-lrs"
+  server_version   = "20.6"
   projection_level = "user"
 }
 

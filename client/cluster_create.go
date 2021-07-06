@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"path"
 )
@@ -27,10 +27,10 @@ type CreateManagedClusterResponse struct {
 	ClusterID string `json:"id"`
 }
 
-func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClusterRequest) (*CreateManagedClusterResponse, error) {
+func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClusterRequest) (*CreateManagedClusterResponse, diag.Diagnostics) {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("error marshalling request: %w", err)
+		return nil, diag.Errorf("error marshalling request: %w", err)
 	}
 
 	requestURL := *c.apiURL
@@ -38,7 +38,7 @@ func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClu
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL.String(), bytes.NewReader(requestBody))
 	if err != nil {
-		return nil, fmt.Errorf("error constructing request: %w", err)
+		return nil, diag.Errorf("error constructing request: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -47,7 +47,7 @@ func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClu
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
+		return nil, diag.Errorf("error sending request: %w", err)
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -58,7 +58,7 @@ func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClu
 	decoder := json.NewDecoder(resp.Body)
 	result := CreateManagedClusterResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, fmt.Errorf("error parsing response: %w", err)
+		return nil, diag.Errorf("error parsing response: %w", err)
 	}
 
 	return &result, nil

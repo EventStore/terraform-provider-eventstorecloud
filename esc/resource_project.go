@@ -2,19 +2,19 @@ package esc
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
 func resourceProject() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceProjectCreate,
-		Exists: resourceProjectExists,
-		Read:   resourceProjectRead,
-		Update: resourceProjectUpdate,
-		Delete: resourceProjectDelete,
+		CreateContext: resourceProjectCreate,
+		ReadContext:   resourceProjectRead,
+		UpdateContext: resourceProjectUpdate,
+		DeleteContext: resourceProjectDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -26,7 +26,7 @@ func resourceProject() *schema.Resource {
 	}
 }
 
-func resourceProjectCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	request := &client.CreateProjectRequest{
@@ -34,52 +34,40 @@ func resourceProjectCreate(d *schema.ResourceData, meta interface{}) error {
 		Name:           d.Get("name").(string),
 	}
 
-	resp, err := c.client.ProjectCreate(context.Background(), request)
+	resp, err := c.client.ProjectCreate(ctx, request)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(resp.ProjectID)
-	return nil
+
+	return resourceProjectRead(ctx, d, meta)
 }
 
-func resourceProjectExists(d *schema.ResourceData, meta interface{}) (bool, error) {
+func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
 
 	request := &client.GetProjectRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      d.Id(),
 	}
 
-	_, err := c.client.ProjectGet(context.Background(), request)
+	resp, err := c.client.ProjectGet(ctx, request)
 	if err != nil {
-		return false, err
-	}
-
-	return true, nil
-}
-
-func resourceProjectRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*providerContext)
-
-	request := &client.GetProjectRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      d.Id(),
-	}
-
-	resp, err := c.client.ProjectGet(context.Background(), request)
-	if err != nil {
-		return err
+		d.SetId("")
+		return diags
 	}
 
 	if err := d.Set("name", resp.Project.Name); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return nil
+	return diags
 }
 
-func resourceProjectUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	if d.HasChange("name") {
@@ -89,15 +77,15 @@ func resourceProjectUpdate(d *schema.ResourceData, meta interface{}) error {
 			Name:           d.Get("name").(string),
 		}
 
-		if err := c.client.ProjectUpdate(context.Background(), request); err != nil {
+		if err := c.client.ProjectUpdate(ctx, request); err != nil {
 			return err
 		}
 	}
 
-	return resourceProjectRead(d, meta)
+	return resourceProjectRead(ctx, d, meta)
 }
 
-func resourceProjectDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	request := &client.DeleteProjectRequest{
@@ -105,5 +93,5 @@ func resourceProjectDelete(d *schema.ResourceData, meta interface{}) error {
 		ProjectID:      d.Id(),
 	}
 
-	return c.client.ProjectDelete(context.Background(), request)
+	return c.client.ProjectDelete(ctx, request)
 }

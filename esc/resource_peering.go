@@ -2,23 +2,21 @@ package esc
 
 import (
 	"context"
-	"errors"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"path"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
 func resourcePeering() *schema.Resource {
 	return &schema.Resource{
-		Create: resourcePeeringCreate,
-		Exists: resourcePeeringExists,
-		Read:   resourcePeeringRead,
-		Update: resourcePeeringUpdate,
-		Delete: resourcePeeringDelete,
+		CreateContext: resourcePeeringCreate,
+		ReadContext:   resourcePeeringRead,
+		UpdateContext: resourcePeeringUpdate,
+		DeleteContext: resourcePeeringDelete,
 
 		Schema: map[string]*schema.Schema{
 			"project_id": {
@@ -108,26 +106,28 @@ func resourcePeering() *schema.Resource {
 	}
 }
 
-func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string, metadata map[string]string) error {
+func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string, metadata map[string]string) diag.Diagnostics {
 	providerPeeringMetadata := map[string]string{}
+
+	var diags diag.Diagnostics
 
 	switch provider {
 	case "aws":
 		if val, hasVal := metadata["peeringLinkId"]; hasVal {
 			providerPeeringMetadata["aws_peering_link_id"] = val
 		} else {
-			return errors.New("AWS peering link missing remote peering link identifier")
+			diags = append(diags, diag.Errorf("AWS peering link missing remote peering link identifier")...)
 		}
 	case "gcp":
 		if val, hasVal := metadata["projectId"]; hasVal {
 			providerPeeringMetadata["gcp_project_id"] = val
 		} else {
-			return errors.New("GCP peering link missing remote peering link project identifier")
+			diags = append(diags, diag.Errorf("GCP peering link missing remote peering link project identifier")...)
 		}
 		if val, hasVal := metadata["networkId"]; hasVal {
 			providerPeeringMetadata["gcp_network_name"] = val
 		} else {
-			return errors.New("GCP peering link missing remote peering link network identifier")
+			diags = append(diags, diag.Errorf("GCP peering link missing remote peering link network identifier")...)
 		}
 		providerPeeringMetadata["gcp_network_id"] = path.Join(
 			"projects",
@@ -138,13 +138,16 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 	case "azure":
 		break
 	default:
-		return fmt.Errorf("Unknown provider %q from Event Store Cloud API", provider)
+		diags = append(diags, diag.Errorf("Unknown provider %q from Event Store Cloud API", provider)...)
 	}
 
-	return d.Set("provider_metadata", providerPeeringMetadata)
+	if err := d.Set("provider_metadata", providerPeeringMetadata); err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+	}
+	return diags
 }
 
-func resourcePeeringCreate(d *schema.ResourceData, meta interface{}) error {
+func resourcePeeringCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -166,14 +169,14 @@ func resourcePeeringCreate(d *schema.ResourceData, meta interface{}) error {
 		Routes:                routes,
 	}
 
-	resp, err := c.client.PeeringCreate(context.Background(), request)
+	resp, err := c.client.PeeringCreate(ctx, request)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(resp.PeeringID)
 
-	peering, err := c.client.PeeringWaitForState(context.Background(), &client.WaitForPeeringStateRequest{
+	peering, err := c.client.PeeringWaitForState(ctx, &client.WaitForPeeringStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		PeeringID:      resp.PeeringID,
@@ -183,11 +186,36 @@ func resourcePeeringCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	return resourcePeeringSetProviderMetadata(d, peering.Provider, peering.ProviderPeeringMetadata)
+	if err := resourcePeeringSetProviderMetadata(d, peering.Provider, peering.ProviderPeeringMetadata); err != nil {
+		return err
+	}
+
+	return resourcePeeringCreate(ctx, d, meta)
 }
 
-func resourcePeeringExists(d *schema.ResourceData, meta interface{}) (bool, error) {
+func resourcePeeringUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
+
+	if d.HasChange("name") {
+		request := &client.UpdatePeeringRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      d.Get("project_id").(string),
+			PeeringID:      d.Id(),
+			Name:           d.Get("name").(string),
+		}
+
+		if err := c.client.PeeringUpdate(ctx, request); err != nil {
+			return err
+		}
+	}
+
+	return resourcePeeringRead(ctx, d, meta)
+}
+
+func resourcePeeringRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
 
 	projectId := d.Get("project_id").(string)
 	peeringId := d.Id()
@@ -198,84 +226,45 @@ func resourcePeeringExists(d *schema.ResourceData, meta interface{}) (bool, erro
 		PeeringID:      peeringId,
 	}
 
-	peering, err := c.client.PeeringGet(context.Background(), request)
-	if err != nil {
-		return false, nil
-	}
-	if peering.Peering.Status == client.StateDeleted {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-func resourcePeeringUpdate(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*providerContext)
-
-	if !d.HasChange("name") {
-		return nil
-	}
-
-	request := &client.UpdatePeeringRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      d.Get("project_id").(string),
-		PeeringID:      d.Id(),
-		Name:           d.Get("name").(string),
-	}
-
-	if err := c.client.PeeringUpdate(context.Background(), request); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func resourcePeeringRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*providerContext)
-
-	projectId := d.Get("project_id").(string)
-	peeringId := d.Id()
-
-	request := &client.GetPeeringRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      projectId,
-		PeeringID:      peeringId,
-	}
-
-	resp, err := c.client.PeeringGet(context.Background(), request)
-	if err != nil {
-		return err
+	resp, err := c.client.PeeringGet(ctx, request)
+	if err != nil || resp.Peering.Status == client.StateDeleted {
+		d.SetId("")
+		return diags
 	}
 
 	if err := d.Set("project_id", resp.Peering.ProjectID); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("network_id", resp.Peering.NetworkID); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("peer_resource_provider", resp.Peering.Provider); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("peer_network_region", resp.Peering.PeerNetworkRegion); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("peer_account_id", resp.Peering.PeerAccountIdentifier); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("peer_network_id", resp.Peering.PeerNetworkIdentifier); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("name", resp.Peering.Name); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("routes", resp.Peering.Routes); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 
-	return resourcePeeringSetProviderMetadata(d, resp.Peering.Provider, resp.Peering.ProviderPeeringMetadata)
+	if err := resourcePeeringSetProviderMetadata(d, resp.Peering.Provider, resp.Peering.ProviderPeeringMetadata); err != nil {
+		diags = append(diags, err...)
+	}
+
+	return diags
 }
 
-func resourcePeeringDelete(d *schema.ResourceData, meta interface{}) error {
+func resourcePeeringDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -287,11 +276,11 @@ func resourcePeeringDelete(d *schema.ResourceData, meta interface{}) error {
 		PeeringID:      peeringId,
 	}
 
-	if err := c.client.PeeringDelete(context.Background(), request); err != nil {
+	if err := c.client.PeeringDelete(ctx, request); err != nil {
 		return err
 	}
 
-	_, err := c.client.PeeringWaitForState(context.Background(), &client.WaitForPeeringStateRequest{
+	_, err := c.client.PeeringWaitForState(ctx, &client.WaitForPeeringStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		PeeringID:      peeringId,

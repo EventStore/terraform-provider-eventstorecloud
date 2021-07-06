@@ -1,0 +1,53 @@
+---
+layout: ""
+page_title: "Provider: Event Store Cloud"
+description: |-
+  Terraform provider for Event Store Cloud
+---
+
+# Event Store Cloud Provider
+
+This provider can be used for provisioning resources in [Event Store Cloud][esc].
+
+# Installation
+
+## Terraform 0.12
+
+We provide binary releases for macOS, Windows and Linux via GitHub releases. In order for Terraform to find the plugin, the appropriate binary must be placed into the Terraform third-party plugin directory, the location of which varies by operating system:
+
+- `%APPDATA%\terraform.d\plugins` on Windows
+- `~/.terraform.d/plugins` on macOS or Linux
+
+Alternatively, the binary can be placed alongside the main `terraform` binary.
+
+On macOS and Linux, you can download the provider using the following commands:
+
+- macOS: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.3/terraform-provider-eventstorecloud_1.5.3_darwin_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud_v1.5.3 ~/.terraform.d/plugins/terraform-provider-eventstorecloud_v1.5.3`
+- Linux: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.3/terraform-provider-eventstorecloud_1.5.3_linux_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud_v1.5.3 ~/.terraform.d/plugins/terraform-provider-eventstorecloud_v1.5.3`
+
+If you prefer to install from source, use the `make install` target in this repository. You'll need a Go 1.13+
+development environment.
+
+## Terraform 0.13+
+
+Terraform now supports third party modules installed via the plugin registry. Add the following to your terraform module
+configuration.
+
+```
+terraform {
+  required_providers {
+    eventstorecloud = {
+      source = "EventStore/eventstorecloud"
+      version = "1.5.3"
+    }
+  }
+}
+```
+
+{{ .SchemaMarkdown | trimspace }}
+
+## Example Usage
+
+{{tffile "examples/aws/main.tf"}}
+
+[terraform]: (https://terraform.io)

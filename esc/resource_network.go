@@ -2,21 +2,21 @@ package esc
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
 func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkCreate,
-		Exists: resourceNetworkExists,
-		Read:   resourceNetworkRead,
-		Update: resourceNetworkUpdate,
-		Delete: resourceNetworkDelete,
+		CreateContext: resourceNetworkCreate,
+		ReadContext:   resourceNetworkRead,
+		UpdateContext: resourceNetworkUpdate,
+		DeleteContext: resourceNetworkDelete,
 
 		Schema: map[string]*schema.Schema{
 			"project_id": {
@@ -58,7 +58,7 @@ func resourceNetwork() *schema.Resource {
 	}
 }
 
-func resourceNetworkCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -72,102 +72,91 @@ func resourceNetworkCreate(d *schema.ResourceData, meta interface{}) error {
 		Region:           d.Get("region").(string),
 	}
 
-	resp, err := c.client.NetworkCreate(context.Background(), request)
+	resp, err := c.client.NetworkCreate(ctx, request)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(resp.NetworkID)
 
-	return c.client.NetworkWaitForState(context.Background(), &client.WaitForNetworkStateRequest{
+	if err := c.client.NetworkWaitForState(ctx, &client.WaitForNetworkStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		NetworkID:      resp.NetworkID,
 		State:          "available",
-	})
-}
-
-func resourceNetworkExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	c := meta.(*providerContext)
-
-	projectId := d.Get("project_id").(string)
-	networkId := d.Id()
-
-	request := &client.GetNetworkRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      projectId,
-		NetworkID:      networkId,
-	}
-
-	network, err := c.client.NetworkGet(context.Background(), request)
-	if err != nil {
-		return false, nil
-	}
-	if network.Network.Status == client.StateDeleted {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-func resourceNetworkUpdate(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*providerContext)
-
-	if !d.HasChange("name") {
-		return nil
-	}
-
-	projectId := d.Get("project_id").(string)
-	networkId := d.Id()
-
-	request := &client.UpdateNetworkRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      projectId,
-		NetworkID:      networkId,
-		Name:           d.Get("name").(string),
-	}
-
-	return c.client.NetworkUpdate(context.Background(), request)
-}
-
-func resourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*providerContext)
-
-	projectId := d.Get("project_id").(string)
-	networkId := d.Id()
-
-	request := &client.GetNetworkRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      projectId,
-		NetworkID:      networkId,
-	}
-
-	resp, err := c.client.NetworkGet(context.Background(), request)
-	if err != nil {
+	}); err != nil {
 		return err
+	}
+
+	return resourceNetworkRead(ctx, d, meta)
+}
+
+func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	if d.HasChange("name") {
+		projectId := d.Get("project_id").(string)
+		networkId := d.Id()
+
+		request := &client.UpdateNetworkRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			NetworkID:      networkId,
+			Name:           d.Get("name").(string),
+		}
+
+		err := c.client.NetworkUpdate(ctx, request)
+		if err != nil {
+			return err
+		}
+	}
+
+	return resourceProjectRead(ctx, d, meta)
+}
+
+func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
+
+	projectId := d.Get("project_id").(string)
+	networkId := d.Id()
+
+	request := &client.GetNetworkRequest{
+		OrganizationID: c.organizationId,
+		ProjectID:      projectId,
+		NetworkID:      networkId,
+	}
+
+	resp, err := c.client.NetworkGet(ctx, request)
+	if err != nil || resp.Network.Status == client.StateDeleted {
+		d.SetId("")
+		return diags
 	}
 
 	if err := d.Set("project_id", resp.Network.ProjectID); err != nil {
-		return err
+		diags = append(diags, diag.Errorf("Unable to set project_id", err)...)
 	}
 	if err := d.Set("resource_provider", resp.Network.Provider); err != nil {
-		return err
+		diags = append(diags, diag.Errorf("Unable to set resource_provider", err)...)
 	}
 	if err := d.Set("region", resp.Network.Region); err != nil {
-		return err
+		diags = append(diags, diag.Errorf("Unable to set region", err)...)
 	}
 	if err := d.Set("cidr_block", resp.Network.CIDRBlock); err != nil {
-		return err
+		diags = append(diags, diag.Errorf("Unable to set cidr_block", err)...)
 	}
 	if err := d.Set("name", resp.Network.Name); err != nil {
-		return err
+		diags = append(diags, diag.Errorf("Unable to set name", err)...)
 	}
 
-	return nil
+	return diags
 }
 
-func resourceNetworkDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
 
 	projectId := d.Get("project_id").(string)
 	networkId := d.Id()
@@ -178,14 +167,18 @@ func resourceNetworkDelete(d *schema.ResourceData, meta interface{}) error {
 		NetworkID:      networkId,
 	}
 
-	if err := c.client.NetworkDelete(context.Background(), request); err != nil {
+	if err := c.client.NetworkDelete(ctx, request); err != nil {
 		return err
 	}
 
-	return c.client.NetworkWaitForState(context.Background(), &client.WaitForNetworkStateRequest{
+	if err := c.client.NetworkWaitForState(ctx, &client.WaitForNetworkStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		NetworkID:      networkId,
 		State:          "deleted",
-	})
+	}); err != nil {
+		return err
+	}
+
+	return diags
 }

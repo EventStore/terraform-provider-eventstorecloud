@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"strings"
 )
@@ -23,7 +23,7 @@ type GetJobResponse struct {
 	Job Job `json:"job"`
 }
 
-func (c *Client) GetJob(ctx context.Context, organizationId string, projectId string, jobId string) (*GetJobResponse, error) {
+func (c *Client) GetJob(ctx context.Context, organizationId string, projectId string, jobId string) (*GetJobResponse, diag.Diagnostics) {
 
 	url := *c.apiURL
 	url.Path = "/orchestrate/v1/organizations/{organizationId}/projects/{projectId}/jobs/{jobId}"
@@ -33,7 +33,7 @@ func (c *Client) GetJob(ctx context.Context, organizationId string, projectId st
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("error constructing request for GetJob: %w", err)
+		return nil, diag.Errorf("error constructing request for GetJob: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -42,7 +42,7 @@ func (c *Client) GetJob(ctx context.Context, organizationId string, projectId st
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("error sending request for GetJob: %w", err)
+		return nil, diag.Errorf("error sending request for GetJob: %w", err)
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -53,7 +53,7 @@ func (c *Client) GetJob(ctx context.Context, organizationId string, projectId st
 	decoder := json.NewDecoder(resp.Body)
 	result := GetJobResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, fmt.Errorf("error parsing response: %w", err)
+		return nil, diag.Errorf("error parsing response: %w", err)
 	}
 
 	return &result, nil
