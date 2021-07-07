@@ -70,7 +70,7 @@ provider "eventstorecloud" {
 ### Optional
 
 - **organization_id** (String)
-- **token** (String)
+- **token** (String, Sensitive)
 - **token_store** (String)
 - **url** (String)
 

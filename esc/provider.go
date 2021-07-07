@@ -44,6 +44,7 @@ func New(version string) func() *schema.Provider {
 					Type:        schema.TypeString,
 					Required:    true,
 					DefaultFunc: schema.EnvDefaultFunc("ESC_TOKEN", ""),
+					Sensitive:   true,
 				},
 
 				"organization_id": {

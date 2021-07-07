@@ -41,14 +41,14 @@ func resourceManagedCluster() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"topology": {
-				Description:  "Topology of the managed cluster",
+				Description:  "Topology of the managed cluster (`single-node` or `three-node-multi-zone`)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
 				ValidateFunc: validation.StringInSlice(validTopologies, true),
 			},
 			"instance_type": {
-				Description:  "Instance Type of the managed cluster",
+				Description:  "Instance type of the managed cluster (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
@@ -65,7 +65,7 @@ func resourceManagedCluster() *schema.Resource {
 				ValidateFunc: validation.IntBetween(8, 4096),
 			},
 			"disk_type": {
-				Description:  "Storage class of the data disks",
+				Description:  "Storage class of the data disks (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
@@ -76,7 +76,7 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"server_version": {
-				Description:  "Server version to provision",
+				Description:  "Server version to provision (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
@@ -87,7 +87,7 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"projection_level": {
-				Description:  "Determines whether to run no projections, system projections only, or system and user projections",
+				Description:  "Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below)",
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "off",
