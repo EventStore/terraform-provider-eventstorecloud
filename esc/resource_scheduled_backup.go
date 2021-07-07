@@ -16,6 +16,8 @@ func resourceScheduledBackup() *schema.Resource {
 		ReadContext:   resourceScheduledBackupRead,
 		DeleteContext: resourceScheduledBackupDelete,
 
+		Description: "Creates a new scheduled backup.",
+
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Description: "Human readable description of the job",

@@ -14,6 +14,8 @@ import (
 
 func resourceManagedCluster() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages EventStoreDB instances and clusters in Event Store Cloud",
+
 		CreateContext: resourceManagedClusterCreate,
 		ReadContext:   resourceManagedClusterRead,
 		UpdateContext: resourceManagedClusterUpdate,

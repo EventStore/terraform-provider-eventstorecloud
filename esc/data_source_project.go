@@ -11,6 +11,7 @@ import (
 
 func dataSourceProject() *schema.Resource {
 	return &schema.Resource{
+		Description: "Retrieves data for an existing `Project` resource",
 		ReadContext: dataSourceProjectRead,
 		Schema: map[string]*schema.Schema{
 			"name": {

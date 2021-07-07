@@ -11,6 +11,8 @@ import (
 
 func resourceProject() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages projects within an organization in Event Store Cloud",
+
 		CreateContext: resourceProjectCreate,
 		ReadContext:   resourceProjectRead,
 		UpdateContext: resourceProjectUpdate,

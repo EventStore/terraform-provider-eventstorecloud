@@ -14,6 +14,8 @@ import (
 
 func resourcePeering() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages peering connections between Event Store Cloud VPCs and customer own VPCs",
+
 		CreateContext: resourcePeeringCreate,
 		ReadContext:   resourcePeeringRead,
 		UpdateContext: resourcePeeringUpdate,

@@ -13,6 +13,8 @@ import (
 
 func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
+		Description: "Manages VPC (network) resources in Event Store Cloud",
+
 		CreateContext: resourceNetworkCreate,
 		ReadContext:   resourceNetworkRead,
 		UpdateContext: resourceNetworkUpdate,

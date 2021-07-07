@@ -19,6 +19,8 @@ func resourceIntegration() *schema.Resource {
 		DeleteContext: resourceIntegrationDelete,
 		UpdateContext: resourceIntegrationUpdate,
 
+		Description: "Manages integration resources, for example Slack or OpsGenie.",
+
 		Schema: map[string]*schema.Schema{
 			"description": {
 				Description: "Human readable description of the integration",
