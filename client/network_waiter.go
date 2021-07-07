@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 type WaitForNetworkStateRequest struct {
@@ -14,7 +13,7 @@ type WaitForNetworkStateRequest struct {
 	State          string
 }
 
-func (c *Client) NetworkWaitForState(ctx context.Context, req *WaitForNetworkStateRequest) error {
+func (c *Client) NetworkWaitForState(ctx context.Context, req *WaitForNetworkStateRequest) diag.Diagnostics {
 	start := time.Now()
 
 	getRequest := &GetNetworkRequest{
@@ -34,7 +33,7 @@ func (c *Client) NetworkWaitForState(ctx context.Context, req *WaitForNetworkSta
 			//away when being destroyed, so wait a bit before failing the operation.
 			elapsed := time.Since(start)
 			if elapsed.Seconds() > 30.0 {
-				return errors.Errorf("Network entered a defunct state!")
+				return diag.Errorf("Network entered a defunct state!")
 			}
 		}
 

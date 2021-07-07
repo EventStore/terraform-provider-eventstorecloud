@@ -3,6 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"net/url"
 	"os"
@@ -91,10 +92,10 @@ func New(opts *Config) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) addAuthorizationHeader(req *http.Request) error {
+func (c *Client) addAuthorizationHeader(req *http.Request) diag.Diagnostics {
 	token, err := c.accessToken(false)
 	if err != nil {
-		return fmt.Errorf("error obtaining access token: %w", err)
+		return diag.Errorf("error obtaining access token: %w", err)
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))

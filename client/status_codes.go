@@ -1,16 +1,15 @@
 package client
 
 import (
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"io"
 )
 
-func translateStatusCode(status int, activity string, body io.Reader) error {
+func translateStatusCode(status int, activity string, body io.Reader) diag.Diagnostics {
 	problemDetails, err := newProblemDetailsFromReader(body)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return fmt.Errorf("error %s: %w", activity, problemDetails)
+	return diag.Errorf("error %s: %s", activity, problemDetails.Error())
 }
-

@@ -2,10 +2,10 @@ package esc
 
 import (
 	"context"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/pkg/errors"
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
@@ -14,11 +14,12 @@ import (
 func resourceIntegration() *schema.Resource {
 
 	return &schema.Resource{
-		Create: resourceIntegrationCreate,
-		Exists: resourceIntegrationExists,
-		Read:   resourceIntegrationRead,
-		Delete: resourceIntegrationDelete,
-		Update: resourceIntegrationUpdate,
+		CreateContext: resourceIntegrationCreate,
+		ReadContext:   resourceIntegrationRead,
+		DeleteContext: resourceIntegrationDelete,
+		UpdateContext: resourceIntegrationUpdate,
+
+		Description: "Manages integration resources, for example Slack or OpsGenie.",
 
 		Schema: map[string]*schema.Schema{
 			"description": {
@@ -81,7 +82,7 @@ func translateTfDataToApi(data map[string]interface{}) map[string]interface{} {
 func translateApiDataToTf(data map[string]interface{}) map[string]interface{} {
 	// We rename the read only fields the API returns on GET back to their
 	// writable counterparts seen in the POST call.
-	// Allowing them to be different here violates terraform's constructs and
+	// Allowing them to be different here violates Terraform constructs and
 	// makes them impossible to retrieve individually, although oddly enough
 	// you can see them if you set the entire "data" map to an output variable.
 
@@ -96,7 +97,7 @@ func translateApiDataToTf(data map[string]interface{}) map[string]interface{} {
 	}, data)
 }
 
-func resourceIntegrationCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -106,89 +107,77 @@ func resourceIntegrationCreate(d *schema.ResourceData, meta interface{}) error {
 		Description: d.Get("description").(string),
 	}
 
-	resp, err := c.client.CreateIntegration(context.Background(), c.organizationId, projectId, request)
-
+	resp, err := c.client.CreateIntegration(ctx, c.organizationId, projectId, request)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(resp.Id)
 
-	return resourceIntegrationRead(d, meta)
+	return resourceIntegrationRead(ctx, d, meta)
 }
 
-func resourceIntegrationExists(d *schema.ResourceData, meta interface{}) (bool, error) {
+func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
 
 	projectId := d.Get("project_id").(string)
 	integrationId := d.Id()
 
-	integration, err := c.client.GetIntegration(context.Background(), c.organizationId, projectId, integrationId)
-	if err != nil {
-		return false, nil
-	}
-	if integration.Integration.Status == client.StateDeleted {
-		return false, nil
+	resp, err := c.client.GetIntegration(ctx, c.organizationId, projectId, integrationId)
+	if err != nil || resp.Integration.Status == client.StateDeleted {
+		d.SetId("")
+		return diags
 	}
 
-	return true, nil
-}
-
-func resourceIntegrationRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*providerContext)
-
-	projectId := d.Get("project_id").(string)
-	integrationId := d.Id()
-
-	resp, err := c.client.GetIntegration(context.Background(), c.organizationId, projectId, integrationId)
-	if err != nil {
-		return err
-	}
 	if err := d.Set("description", resp.Integration.Description); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("project_id", resp.Integration.ProjectId); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("data", translateApiDataToTf(resp.Integration.Data)); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 
-	return nil
+	return diags
 }
 
-func resourceIntegrationDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
 
 	projectId := d.Get("project_id").(string)
 	integrationId := d.Id()
 
-	if err := c.client.DeleteIntegration(context.Background(), c.organizationId, projectId, integrationId); err != nil {
+	if err := c.client.DeleteIntegration(ctx, c.organizationId, projectId, integrationId); err != nil {
 		return err
 	}
 
 	start := time.Now()
 	for {
-		resp, err := c.client.GetIntegration(context.Background(), c.organizationId, projectId, integrationId)
+		resp, err := c.client.GetIntegration(ctx, c.organizationId, projectId, integrationId)
 		if err != nil {
-			return fmt.Errorf("error polling integration %q (%q) to see if it actually got deleted", integrationId, d.Get("description"))
+			return diag.Errorf("error polling integration %q (%q) to see if it actually got deleted", integrationId, d.Get("description"))
 		}
 		elapsed := time.Since(start)
 		if elapsed.Seconds() > 30.0 {
-			return errors.Errorf("integration %q (%q) does not seem to be deleting", integrationId, d.Get("description"))
+			return diag.Errorf("integration %q (%q) does not seem to be deleting", integrationId, d.Get("description"))
 		}
 		if resp.Integration.Status == "deleted" {
-			return nil
+			return diags
 		}
 		time.Sleep(1.0)
 	}
 }
 
-func resourceIntegrationUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	if !d.HasChanges("description", "data") {
-		return nil
+		return resourceIntegrationRead(ctx, d, meta)
 	}
 
 	var desc *string
@@ -207,7 +196,7 @@ func resourceIntegrationUpdate(d *schema.ResourceData, meta interface{}) error {
 			newData := translateTfDataToApi(v)
 			data = &newData
 		default:
-			return errors.Errorf("error - data was an unexpected type")
+			return diag.FromErr(errors.Errorf("error - data was an unexpected type"))
 		}
 	} else {
 		data = nil
@@ -222,5 +211,9 @@ func resourceIntegrationUpdate(d *schema.ResourceData, meta interface{}) error {
 	projectId := d.Get("project_id").(string)
 	integrationId := d.Id()
 
-	return c.client.UpdateIntegration(context.Background(), orgId, projectId, integrationId, request)
+	if err := c.client.UpdateIntegration(ctx, orgId, projectId, integrationId, request); err != nil {
+		return err
+	}
+
+	return resourceIntegrationRead(ctx, d, meta)
 }

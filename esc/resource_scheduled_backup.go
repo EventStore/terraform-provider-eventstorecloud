@@ -2,22 +2,21 @@ package esc
 
 import (
 	"context"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/pkg/errors"
-
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceScheduledBackup() *schema.Resource {
 
 	return &schema.Resource{
-		Create: resourceScheduledBackupCreate,
-		Exists: resourceScheduledBackupExists,
-		Read:   resourceScheduledBackupRead,
-		Delete: resourceScheduledBackupDelete,
+		CreateContext: resourceScheduledBackupCreate,
+		ReadContext:   resourceScheduledBackupRead,
+		DeleteContext: resourceScheduledBackupDelete,
+
+		Description: "Creates a new scheduled backup.",
 
 		Schema: map[string]*schema.Schema{
 			"description": {
@@ -60,7 +59,7 @@ func resourceScheduledBackup() *schema.Resource {
 	}
 }
 
-func resourceScheduledBackupCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceScheduledBackupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -76,84 +75,69 @@ func resourceScheduledBackupCreate(d *schema.ResourceData, meta interface{}) err
 		Type:        "ScheduledBackup",
 	}
 
-	resp, err := c.client.CreateJob(context.Background(), c.organizationId, projectId, request)
-
+	resp, err := c.client.CreateJob(ctx, c.organizationId, projectId, request)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(resp.Id)
 
-	return resourceScheduledBackupRead(d, meta)
+	return resourceScheduledBackupRead(ctx, d, meta)
 }
 
-func resourceScheduledBackupExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	c := meta.(*providerContext)
-
-	projectId := d.Get("project_id").(string)
-	jobId := d.Id()
-
-	cluster, err := c.client.GetJob(context.Background(), c.organizationId, projectId, jobId)
-	if err != nil {
-		return false, nil
-	}
-	if cluster.Job.Status == client.StateDeleted {
-		return false, nil
-	}
-
-	return true, nil
-}
-
-func resourceScheduledBackupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceScheduledBackupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 	projectId := d.Get("project_id").(string)
 	jobId := d.Id()
 
-	resp, err := c.client.GetJob(context.Background(), c.organizationId, projectId, jobId)
-	if err != nil {
-		return err
+	var diags diag.Diagnostics
+
+	resp, err := c.client.GetJob(ctx, c.organizationId, projectId, jobId)
+	if err != nil || resp.Job.Status == client.StateDeleted {
+		d.SetId("")
+		return diags
 	}
 	if err := d.Set("description", resp.Job.Description); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("project_id", resp.Job.ProjectId); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("schedule", resp.Job.Schedule); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("source_cluster_id", resp.Job.Data["clusterId"]); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("backup_description", resp.Job.Data["description"]); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("max_backup_count", resp.Job.Data["maxBackupCount"]); err != nil {
-		return err
+		diags = append(diags, diag.FromErr(err)...)
 	}
 
-	return nil
+	return diags
 }
 
-func resourceScheduledBackupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceScheduledBackupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
 	jobId := d.Id()
 
-	if err := c.client.DeleteJob(context.Background(), c.organizationId, projectId, jobId); err != nil {
+	if err := c.client.DeleteJob(ctx, c.organizationId, projectId, jobId); err != nil {
 		return err
 	}
 
 	start := time.Now()
 	for {
-		resp, err := c.client.GetJob(context.Background(), c.organizationId, projectId, jobId)
+		resp, err := c.client.GetJob(ctx, c.organizationId, projectId, jobId)
 		if err != nil {
-			return fmt.Errorf("error polling job %q (%q) to see if it actually got deleted", jobId, d.Get("description"))
+			return diag.Errorf("error polling job %q (%q) to see if it actually got deleted", jobId, d.Get("description"))
 		}
 		elapsed := time.Since(start)
 		if elapsed.Seconds() > 30.0 {
-			return errors.Errorf("job %q (%q) does not seem to be deleting", jobId, d.Get("description"))
+			return diag.Errorf("job %q (%q) does not seem to be deleting", jobId, d.Get("description"))
 		}
 		if resp.Job.Status == "deleted" {
 			return nil

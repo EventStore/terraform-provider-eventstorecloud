@@ -3,21 +3,23 @@ package esc
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
 func resourceManagedCluster() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceManagedClusterCreate,
-		Exists: resourceManagedClusterExists,
-		Read:   resourceManagedClusterRead,
-		Update: resourceManagedClusterUpdate,
-		Delete: resourceManagedClusterDelete,
+		Description: "Manages EventStoreDB instances and clusters in Event Store Cloud",
+
+		CreateContext: resourceManagedClusterCreate,
+		ReadContext:   resourceManagedClusterRead,
+		UpdateContext: resourceManagedClusterUpdate,
+		DeleteContext: resourceManagedClusterDelete,
 
 		Schema: map[string]*schema.Schema{
 			"project_id": {
@@ -39,14 +41,14 @@ func resourceManagedCluster() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"topology": {
-				Description:  "Topology of the managed cluster",
+				Description:  "Topology of the managed cluster (`single-node` or `three-node-multi-zone`)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
 				ValidateFunc: validation.StringInSlice(validTopologies, true),
 			},
 			"instance_type": {
-				Description:  "Instance Type of the managed cluster",
+				Description:  "Instance type of the managed cluster (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
@@ -63,7 +65,7 @@ func resourceManagedCluster() *schema.Resource {
 				ValidateFunc: validation.IntBetween(8, 4096),
 			},
 			"disk_type": {
-				Description:  "Storage class of the data disks",
+				Description:  "Storage class of the data disks (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
@@ -74,7 +76,7 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"server_version": {
-				Description:  "Server version to provision",
+				Description:  "Server version to provision (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
@@ -85,7 +87,7 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"projection_level": {
-				Description:  "Determines whether to run no projections, system projections only, or system and user projections",
+				Description:  "Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below)",
 				Optional:     true,
 				ForceNew:     true,
 				Default:      "off",
@@ -116,7 +118,7 @@ func resourceManagedCluster() *schema.Resource {
 	}
 }
 
-func resourceManagedClusterCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceManagedClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -134,14 +136,14 @@ func resourceManagedClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		ProjectionLevel: strings.ToLower(d.Get("projection_level").(string)),
 	}
 
-	resp, err := c.client.ManagedClusterCreate(context.Background(), request)
+	resp, err := c.client.ManagedClusterCreate(ctx, request)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(resp.ClusterID)
 
-	if err := c.client.ManagedClusterWaitForState(context.Background(), &client.WaitForManagedClusterStateRequest{
+	if err := c.client.ManagedClusterWaitForState(ctx, &client.WaitForManagedClusterStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		ClusterID:      resp.ClusterID,
@@ -150,11 +152,13 @@ func resourceManagedClusterCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	return resourceManagedClusterRead(d, meta)
+	return resourceManagedClusterRead(ctx, d, meta)
 }
 
-func resourceManagedClusterExists(d *schema.ResourceData, meta interface{}) (bool, error) {
+func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
 
 	projectId := d.Get("project_id").(string)
 	clusterId := d.Id()
@@ -165,77 +169,54 @@ func resourceManagedClusterExists(d *schema.ResourceData, meta interface{}) (boo
 		ClusterID:      clusterId,
 	}
 
-	cluster, err := c.client.ManagedClusterGet(context.Background(), request)
-	if err != nil {
-		return false, nil
-	}
-	if cluster.ManagedCluster.Status == client.StateDeleted {
-		return false, nil
-	}
-
-
-	return true, nil
-}
-
-func resourceManagedClusterRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*providerContext)
-
-	projectId := d.Get("project_id").(string)
-	clusterId := d.Id()
-
-	request := &client.GetManagedClusterRequest{
-		OrganizationID: c.organizationId,
-		ProjectID:      projectId,
-		ClusterID:      clusterId,
-	}
-
-	resp, err := c.client.ManagedClusterGet(context.Background(), request)
-	if err != nil {
-		return err
+	resp, err := c.client.ManagedClusterGet(ctx, request)
+	if err != nil || resp.ManagedCluster.Status == client.StateDeleted {
+		d.SetId("")
+		return diags
 	}
 
 	if err := d.Set("project_id", resp.ManagedCluster.ProjectID); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("network_id", resp.ManagedCluster.NetworkID); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("name", resp.ManagedCluster.Name); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("topology", resp.ManagedCluster.Topology); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("instance_type", resp.ManagedCluster.InstanceType); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("disk_size", int(resp.ManagedCluster.DiskSizeGB)); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("disk_type", resp.ManagedCluster.DiskType); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("server_version", resp.ManagedCluster.ServerVersion); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("projection_level", resp.ManagedCluster.ProjectionLevel); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := d.Set("resource_provider", resp.ManagedCluster.Provider); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("region", resp.ManagedCluster.Region); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set("dns_name", fmt.Sprintf("%s.mesdb.eventstore.cloud", resp.ManagedCluster.ClusterID)); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	return nil
 }
 
-func resourceManagedClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -245,7 +226,7 @@ func resourceManagedClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		oldI, newI := d.GetChange("disk_size")
 		oldSize, newSize := oldI.(int), newI.(int)
 		if newSize <= oldSize {
-			return fmt.Errorf("Disks cannot be made smaller - must be %dGB or larger.", oldSize)
+			return diag.FromErr(fmt.Errorf("Disks cannot be made smaller - must be %dGB or larger.", oldSize))
 		}
 
 		request := &client.ExpandManagedClusterDiskRequest{
@@ -254,11 +235,11 @@ func resourceManagedClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 			ClusterID:      clusterId,
 			DiskSizeGB:     int32(newSize),
 		}
-		if err := c.client.ManagedClusterExpandDisk(context.Background(), request); err != nil {
+		if err := c.client.ManagedClusterExpandDisk(ctx, request); err != nil {
 			return err
 		}
 
-		if err := c.client.ManagedClusterWaitForState(context.Background(), &client.WaitForManagedClusterStateRequest{
+		if err := c.client.ManagedClusterWaitForState(ctx, &client.WaitForManagedClusterStateRequest{
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
 			ClusterID:      clusterId,
@@ -268,10 +249,10 @@ func resourceManagedClusterUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	return nil
+	return resourceManagedClusterRead(ctx, d, meta)
 }
 
-func resourceManagedClusterDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceManagedClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -283,11 +264,11 @@ func resourceManagedClusterDelete(d *schema.ResourceData, meta interface{}) erro
 		ClusterID:      clusterId,
 	}
 
-	if err := c.client.ManagedClusterDelete(context.Background(), request); err != nil {
+	if err := c.client.ManagedClusterDelete(ctx, request); err != nil {
 		return err
 	}
 
-	return c.client.ManagedClusterWaitForState(context.Background(), &client.WaitForManagedClusterStateRequest{
+	return c.client.ManagedClusterWaitForState(ctx, &client.WaitForManagedClusterStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		ClusterID:      clusterId,

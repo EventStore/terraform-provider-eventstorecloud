@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"path"
 )
@@ -14,13 +14,13 @@ type UpdateNetworkRequest struct {
 	Name           string `json:"description"`
 }
 
-func (c *Client) NetworkUpdate(ctx context.Context, req *UpdateNetworkRequest) error {
+func (c *Client) NetworkUpdate(ctx context.Context, req *UpdateNetworkRequest) diag.Diagnostics {
 	requestURL := *c.apiURL
 	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "networks", req.NetworkID)
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPut, requestURL.String(), nil)
 	if err != nil {
-		return fmt.Errorf("error constructing request: %w", err)
+		return diag.Errorf("error constructing request: %w", err)
 	}
 	if err := c.addAuthorizationHeader(request); err != nil {
 		return err
@@ -28,7 +28,7 @@ func (c *Client) NetworkUpdate(ctx context.Context, req *UpdateNetworkRequest) e
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return fmt.Errorf("error sending request: %w", err)
+		return diag.Errorf("error sending request: %w", err)
 	}
 	defer closeIgnoreError(resp.Body)
 

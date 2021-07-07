@@ -2,9 +2,8 @@ package client
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 type WaitForPeeringStateRequest struct {
@@ -14,7 +13,7 @@ type WaitForPeeringStateRequest struct {
 	State          string
 }
 
-func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringStateRequest) (*Peering, error) {
+func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringStateRequest) (*Peering, diag.Diagnostics) {
 	start := time.Now()
 	getRequest := &GetPeeringRequest{
 		OrganizationID: req.OrganizationID,
@@ -28,22 +27,22 @@ func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringSta
 			return nil, err
 		}
 
-		if req.State == "deleted" {
-			return &resp.Peering, nil
-		}
-
 		if resp.Peering.Status == "defunct" {
 			// Resources in a `defunct` state may not update their status right
 			//away when being destroyed, so wait a bit before failing the operation.
 			elapsed := time.Since(start)
 			if elapsed.Seconds() > 30.0 {
-				return nil, errors.Errorf("Peering entered a defunct state!")
+				return nil, diag.Errorf("Peering entered a defunct state!")
 			}
 		}
 
 		if resp.Peering.Status != req.State {
 			time.Sleep(5 * time.Second)
 			continue
+		}
+
+		if req.State == "deleted" {
+			return &resp.Peering, nil
 		}
 
 		switch resp.Peering.Provider {

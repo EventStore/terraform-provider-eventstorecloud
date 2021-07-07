@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"strings"
 	"time"
@@ -61,7 +61,7 @@ type SlackIntegrationData struct {
 	Source string `json:"source"`
 }
 
-func (c *Client) GetIntegration(ctx context.Context, organizationId string, projectId string, integrationId string) (*GetIntegrationResponse, error) {
+func (c *Client) GetIntegration(ctx context.Context, organizationId string, projectId string, integrationId string) (*GetIntegrationResponse, diag.Diagnostics) {
 
 	url := *c.apiURL
 	url.Path = "/integrate/v1/organizations/{organizationId}/projects/{projectId}/integrations/{integrationId}"
@@ -71,7 +71,7 @@ func (c *Client) GetIntegration(ctx context.Context, organizationId string, proj
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("error constructing request for GetIntegration: %w", err)
+		return nil, diag.Errorf("error constructing request for GetIntegration: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -80,7 +80,7 @@ func (c *Client) GetIntegration(ctx context.Context, organizationId string, proj
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("error sending request for GetIntegration: %w", err)
+		return nil, diag.Errorf("error sending request for GetIntegration: %w", err)
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -91,13 +91,13 @@ func (c *Client) GetIntegration(ctx context.Context, organizationId string, proj
 	decoder := json.NewDecoder(resp.Body)
 	result := GetIntegrationResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, fmt.Errorf("error parsing response: %w", err)
+		return nil, diag.Errorf("error parsing response: %w", err)
 	}
 
 	return &result, nil
 }
 
-func (c *Client) ListIntegrations(ctx context.Context, organizationId string, projectId string) (*ListIntegrationsResponse, error) {
+func (c *Client) ListIntegrations(ctx context.Context, organizationId string, projectId string) (*ListIntegrationsResponse, diag.Diagnostics) {
 
 	url := *c.apiURL
 	url.Path = "/organizations/{organizationId}/projects/{projectId}/integrations"
@@ -106,7 +106,7 @@ func (c *Client) ListIntegrations(ctx context.Context, organizationId string, pr
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("error constructing request for ListIntegrations: %w", err)
+		return nil, diag.Errorf("error constructing request for ListIntegrations: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -115,7 +115,7 @@ func (c *Client) ListIntegrations(ctx context.Context, organizationId string, pr
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, fmt.Errorf("error sending request for ListIntegrations: %w", err)
+		return nil, diag.Errorf("error sending request for ListIntegrations: %w", err)
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -126,7 +126,7 @@ func (c *Client) ListIntegrations(ctx context.Context, organizationId string, pr
 	decoder := json.NewDecoder(resp.Body)
 	result := ListIntegrationsResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, fmt.Errorf("error parsing response: %w", err)
+		return nil, diag.Errorf("error parsing response: %w", err)
 	}
 
 	return &result, nil

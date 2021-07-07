@@ -2,12 +2,12 @@ package client
 
 import (
 	"context"
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"strings"
 )
 
-func (c *Client) DeleteJob(ctx context.Context, organizationId string, projectId string, jobId string) error {
+func (c *Client) DeleteJob(ctx context.Context, organizationId string, projectId string, jobId string) diag.Diagnostics {
 
 	url := *c.apiURL
 	url.Path = "/orchestrate/v1/organizations/{organizationId}/projects/{projectId}/jobs/{jobId}"
@@ -17,7 +17,7 @@ func (c *Client) DeleteJob(ctx context.Context, organizationId string, projectId
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodDelete, url.String(), nil)
 	if err != nil {
-		return fmt.Errorf("error constructing request for DeleteJob: %w", err)
+		return diag.Errorf("error constructing request for DeleteJob: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -26,7 +26,7 @@ func (c *Client) DeleteJob(ctx context.Context, organizationId string, projectId
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return fmt.Errorf("error sending request for DeleteJob: %w", err)
+		return diag.Errorf("error sending request for DeleteJob: %w", err)
 	}
 	defer closeIgnoreError(resp.Body)
 
