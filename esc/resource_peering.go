@@ -193,7 +193,7 @@ func resourcePeeringCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return err
 	}
 
-	return resourcePeeringCreate(ctx, d, meta)
+	return resourcePeeringRead(ctx, d, meta)
 }
 
 func resourcePeeringUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
