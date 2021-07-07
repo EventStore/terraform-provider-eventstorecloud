@@ -124,7 +124,7 @@ resource "eventstorecloud_project" "example" {
 resource "eventstorecloud_network" "example" {
   name = "Example Network"
 
-  project_id = data.eventstorecloud_project.example.id
+  project_id = eventstorecloud_project.example.id
 
   resource_provider = "aws"
   region = "us-west-2"
@@ -166,7 +166,7 @@ resource "eventstorecloud_project" "example" {
 resource "eventstorecloud_network" "example" {
   name = "Example Network"
 
-  project_id = data.eventstorecloud_project.example.id
+  project_id = eventstorecloud_project.example.id
 
   resource_provider = "aws"
   region = "us-west-2"
@@ -232,7 +232,7 @@ data "eventstorecloud_project" "example" {
 resource "eventstorecloud_network" "example" {
   name = "Example Network"
 
-  project_id = data.eventstorecloud_project.example.id
+  project_id = eventstorecloud_project.example.id
 
   resource_provider = "aws"
   region = "us-west-2"

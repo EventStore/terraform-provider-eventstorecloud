@@ -27,10 +27,6 @@ func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringSta
 			return nil, err
 		}
 
-		if req.State == "deleted" {
-			return &resp.Peering, nil
-		}
-
 		if resp.Peering.Status == "defunct" {
 			// Resources in a `defunct` state may not update their status right
 			//away when being destroyed, so wait a bit before failing the operation.
@@ -43,6 +39,10 @@ func (c *Client) PeeringWaitForState(ctx context.Context, req *WaitForPeeringSta
 		if resp.Peering.Status != req.State {
 			time.Sleep(5 * time.Second)
 			continue
+		}
+
+		if req.State == "deleted" {
+			return &resp.Peering, nil
 		}
 
 		switch resp.Peering.Provider {

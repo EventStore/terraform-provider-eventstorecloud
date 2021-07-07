@@ -2,6 +2,7 @@ package esc
 
 import (
 	"context"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"path"
 
@@ -75,7 +76,7 @@ func resourcePeering() *schema.Resource {
 
 			"provider_metadata": {
 				Description: "Metadata about the remote end of the peering connection",
-				Type:        schema.TypeMap,
+				Type:        schema.TypeSet,
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -107,7 +108,7 @@ func resourcePeering() *schema.Resource {
 }
 
 func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string, metadata map[string]string) diag.Diagnostics {
-	providerPeeringMetadata := map[string]string{}
+	providerPeeringMetadata := map[string]interface{}{}
 
 	var diags diag.Diagnostics
 
@@ -116,32 +117,34 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 		if val, hasVal := metadata["peeringLinkId"]; hasVal {
 			providerPeeringMetadata["aws_peering_link_id"] = val
 		} else {
-			diags = append(diags, diag.Errorf("AWS peering link missing remote peering link identifier")...)
+			diags = append(diags, Warnof("AWS peering link missing remote peering link identifier")...)
 		}
 	case "gcp":
-		if val, hasVal := metadata["projectId"]; hasVal {
-			providerPeeringMetadata["gcp_project_id"] = val
+		projectId, hasProjectId := metadata["projectId"]
+		if hasProjectId {
+			providerPeeringMetadata["gcp_project_id"] = projectId
 		} else {
 			diags = append(diags, diag.Errorf("GCP peering link missing remote peering link project identifier")...)
 		}
-		if val, hasVal := metadata["networkId"]; hasVal {
-			providerPeeringMetadata["gcp_network_name"] = val
+		networkName, hasNetworkName := metadata["networkId"]
+		if hasNetworkName {
+			providerPeeringMetadata["gcp_network_name"] = networkName
 		} else {
 			diags = append(diags, diag.Errorf("GCP peering link missing remote peering link network identifier")...)
 		}
 		providerPeeringMetadata["gcp_network_id"] = path.Join(
 			"projects",
-			providerPeeringMetadata["gcp_project_id"],
+			projectId,
 			"global",
 			"networks",
-			providerPeeringMetadata["gcp_network_name"])
+			networkName)
 	case "azure":
 		break
 	default:
 		diags = append(diags, diag.Errorf("Unknown provider %q from Event Store Cloud API", provider)...)
 	}
 
-	if err := d.Set("provider_metadata", providerPeeringMetadata); err != nil {
+	if err := d.Set("provider_metadata", []interface{}{providerPeeringMetadata}); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
 	return diags
@@ -280,11 +283,23 @@ func resourcePeeringDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return err
 	}
 
-	_, err := c.client.PeeringWaitForState(ctx, &client.WaitForPeeringStateRequest{
+	peering, err := c.client.PeeringWaitForState(ctx, &client.WaitForPeeringStateRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
 		PeeringID:      peeringId,
 		State:          "deleted",
 	})
+	if peering.Status != "deleted" {
+		return diag.Errorf("Peering wait for status returned, but the state is still not correct")
+	}
 	return err
+}
+
+func Warnof(format string, a ...interface{}) diag.Diagnostics {
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  fmt.Sprintf(format, a...),
+		},
+	}
 }
