@@ -38,7 +38,7 @@ Manages EventStoreDB instances and clusters in Event Store Cloud
 
 
 
-#### Valid Values
+### Valid Values
 
 Use only the following values as `disk_type`:
 
