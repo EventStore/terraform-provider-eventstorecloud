@@ -11,5 +11,5 @@ func translateStatusCode(status int, activity string, body io.Reader) diag.Diagn
 		return diag.FromErr(err)
 	}
 
-	return diag.Errorf("error %s: %w", activity, problemDetails)
+	return diag.Errorf("error %s: %w", activity, problemDetails.Error())
 }
