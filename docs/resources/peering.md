@@ -32,6 +32,16 @@ description: |-
 
 ### Read-Only
 
-- **provider_metadata** (Map of String) Metadata about the remote end of the peering connection
+- **provider_metadata** (Set of Object) Metadata about the remote end of the peering connection (see [below for nested schema](#nestedatt--provider_metadata))
+
+<a id="nestedatt--provider_metadata"></a>
+### Nested Schema for `provider_metadata`
+
+Read-Only:
+
+- **aws_peering_link_id** (String)
+- **gcp_network_id** (String)
+- **gcp_network_name** (String)
+- **gcp_project_id** (String)
 
 
