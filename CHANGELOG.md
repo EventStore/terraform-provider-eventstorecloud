@@ -1,54 +1,61 @@
+# 1.5.5 (Jul 20, 2021)
+
+Enhancements:
+
+* Provider migrated to v2 Terraform plugin SDK
+* Docs are now generated and made to fit the Terraform expected structure
+
 # 1.5.4 (Jun 23, 2021)
 
 Enhancements:
 
-* Add eventstorecloud_integration resource
+* Add `eventstorecloud_integration` resource
 
 # 1.5.3 (Apr 8, 2021)
 
 Enhancements:
 
-* Add eventstorecloud_scheduled_backup resource
+* Add `eventstorecloud_scheduled_backup` resource
 
 # 1.5.2 (Mar 26, 2021)
 
-FIXES:
+Fixes:
 
 * Resources will now fail when encountering defunct state, instead of waiting for timeout
 
 # 1.5.1 (Jan 26, 2021)
 
-ENHANCEMENTS:
+Enhancements:
 
 * Add missing server version
 * Add missing instance types
-* Fix ESC_ORG_ID environment variable key
+* Fix `ESC_ORG_ID` environment variable key
 
 # 1.5.0 (Dec 11, 2020)
 
-ENHANCEMENTS:
+Enhancements:
 
 * Publish to registry
 
 # 1.4.0 (Dec 9, 2020)
 
-ENHANCEMENTS:
+Enhancements:
 
 * Azure support
 
-FIXES:
+Fixes:
 
 * Increase the allowed CIDR range for networks and peerings to accommodate GCP and Azure
 
 # 1.3.0 (Nov 13, 2020)
 
-FIXES:
+Fixes:
 
-* refresh token was not properly passed to ESC client 
+* Pass the refresh token properly to ESC client 
 
 # 1.2.0 (September 30, 2020)
 
-ENHANCEMENTS:
+Enhancements:
 
 * `resource/eventstorecloud_managed_cluster`: `disk_size` can now be updated to expand the disk size of a cluster. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
 * `resource/eventstorecloud_managed_cluster`: deleted managed clusters are correctly removed from state. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
@@ -56,13 +63,13 @@ ENHANCEMENTS:
 * `resource/eventstorecloud_peering`: `provider_metadata` now contains `gcp_project_name` and `gcp_project_id`. `gcp_project_id` is suitable for passing to `google_compute_network_peering` resources. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
 * `resource/eventstorecloud_peering`: deleted peerings are correctly removed from state. ([#6](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/6))
 
-FIXES:
+Fixes:
 
-* ESC Client auth token directory is now created if it does not exist
+* ESC Client auth token directory gets created if it does not exist
 
 ## 1.1.0 (July 23, 2020)
 
-ENHANCEMENTS:
+Enhancements:
 
 * `resource/eventstorecloud_peering`: Add computed property `provider_metadata`. ([#4](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/4))
 * `resource/eventstorecloud_managed_cluster`: Correct `three-node-multi-zone` topology validation. ([#2](https://github.com/EventStore/terraform-provider-eventstorecloud/pull/2))
@@ -71,9 +78,9 @@ ENHANCEMENTS:
 
 ## 1.0.0 (June 28, 2020)
 
-FEATURES:
+Features:
 
-* Initial release of provider
+* Initial release of the provider
 * **New Data Source:** `eventstorecloud_project`
 * **New Resource:** `eventstorecloud_project`
 * **New Resource:** `eventstorecloud_network`
