@@ -7,42 +7,27 @@ description: |-
 
 # Event Store Cloud Provider
 
-This provider can be used for provisioning resources in [Event Store Cloud][esc].
+The Event Store Cloud provider is used to interact with the resources supported by [Event Store Cloud][esc].
+The provider needs to be configured with the proper credentials before it can be used.
 
-# Installation
+Use the navigation to the left to read about the available resources.
 
-## Terraform 0.12
+## Configuration
 
-We provide binary releases for macOS, Windows and Linux via GitHub releases. In order for Terraform to find the plugin, the appropriate binary must be placed into the Terraform third-party plugin directory, the location of which varies by operating system:
+The Event Store Cloud provider must be configured with an access token, however there are several additional
+options which may be useful.
 
-- `%APPDATA%\terraform.d\plugins` on Windows
-- `~/.terraform.d/plugins` on macOS or Linux
+Provider configuration options are:
 
-Alternatively, the binary can be placed alongside the main `terraform` binary.
+- `token` - (`ESC_TOKEN` via the environment) - *Required* - a refresh token for Event Store Cloud. This token can be created and displayed with the esc cli tool [esc cli](https://github.com/EventStore/esc), or via the "request refresh token" button on the [Authentification Tokens page](https://console.eventstore.cloud/authentication-tokens)  in the console. The token id displayed in the cloud console is not a valid token.
+- `organization_id` - (`ESC_ORG_ID` via the environment) - *Required* - the identifier of the Event Store Cloud
+  organization into which to provision resources.
 
-On macOS and Linux, you can download the provider using the following commands:
-
-- macOS: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.3/terraform-provider-eventstorecloud_1.5.3_darwin_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud_v1.5.3 ~/.terraform.d/plugins/terraform-provider-eventstorecloud_v1.5.3`
-- Linux: `curl -o ./terraform-provider-eventstorecloud.zip -L https://github.com/EventStore/terraform-provider-eventstorecloud/releases/download/v1.5.3/terraform-provider-eventstorecloud_1.5.3_linux_amd64.zip && unzip ./terraform-provider-eventstorecloud.zip && mv ./terraform-provider-eventstorecloud_v1.5.3 ~/.terraform.d/plugins/terraform-provider-eventstorecloud_v1.5.3`
-
-If you prefer to install from source, use the `make install` target in this repository. You'll need a Go 1.13+
-development environment.
-
-## Terraform 0.13+
-
-Terraform now supports third party modules installed via the plugin registry. Add the following to your terraform module
-configuration.
-
-```
-terraform {
-  required_providers {
-    eventstorecloud = {
-      source = "EventStore/eventstorecloud"
-      version = "1.5.3"
-    }
-  }
-}
-```
+- `url` - (`ESC_URL` via the environment) - *Optional* - the URL of the Event Store Cloud API. This defaults
+  to the public cloud instance of Event Store Cloud, but may be overridden to provision resources in another
+  instance.
+- `token_store` - (`ESC_TOKEN_STORE` via the environment) - *Optional* - the location on the local filesystem
+  of the token cache. This is shared with the Event Store Cloud CLI.
 
 ## Example Usage
 
