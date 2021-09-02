@@ -1,3 +1,9 @@
+# 1.5.6 (September 2, 2021)
+
+Enhancements:
+
+* `resource/eventstorecloud_peering`: `provider_metadata` had been inadvertently changed into a set of maps. It's now back to being a map like before.
+
 # 1.5.5 (Jul 20, 2021)
 
 Enhancements:

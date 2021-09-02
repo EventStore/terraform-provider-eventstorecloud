@@ -78,31 +78,11 @@ func resourcePeering() *schema.Resource {
 
 			"provider_metadata": {
 				Description: "Metadata about the remote end of the peering connection",
-				Type:        schema.TypeSet,
+				Type:        schema.TypeMap,
 				Computed:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"aws_peering_link_id": {
-							Description: "AWS Peering link ID for the peering. Empty if the peering Provider is not AWS.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-						"gcp_project_id": {
-							Description: "GCP Project ID for the peering. Empty if the peering Provider is not GCP.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-						"gcp_network_name": {
-							Description: "GCP Network Name for the peering. Empty if the peering Provider is not GCP.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-						"gcp_network_id": {
-							Description: "GCP Network ID in URL format. Can be passed to google_compute_network_peering resources. Empty if the peering Provider is not GCP.",
-							Type:        schema.TypeString,
-							Computed:    true,
-						},
-					},
+				Elem: &schema.Schema{
+					Type:     schema.TypeString,
+					Computed: true,
 				},
 			},
 		},
@@ -146,7 +126,7 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 		diags = append(diags, diag.Errorf("Unknown provider %q from Event Store Cloud API", provider)...)
 	}
 
-	if err := d.Set("provider_metadata", []interface{}{providerPeeringMetadata}); err != nil {
+	if err := d.Set("provider_metadata", providerPeeringMetadata); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
 	return diags
