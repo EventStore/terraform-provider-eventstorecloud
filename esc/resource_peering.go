@@ -3,8 +3,10 @@ package esc
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"path"
+
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -21,6 +23,7 @@ func resourcePeering() *schema.Resource {
 		UpdateContext: resourcePeeringUpdate,
 		DeleteContext: resourcePeeringDelete,
 
+		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{
 			"project_id": {
 				Description: "Project ID",
@@ -86,7 +89,39 @@ func resourcePeering() *schema.Resource {
 				},
 			},
 		},
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Version: 0,
+				Type:    cty.Object(map[string]cty.Type{}),
+				Upgrade: upgrade1_5_6,
+			},
+		},
 	}
+}
+
+func upgrade1_5_6(_ context.Context, state map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	// In version 1.5.6 we accidentally made the field `provider_metadata` into
+	// a set of maps instead of a map. Changing the type back to a map means
+	// users who have projects using 1.5.6 will get an unresolvable situation
+	// that even updating their code can't fix. So we need to check to see if
+	// this item is a map / list, and if so just change it into it's first
+	// (and only) item.
+
+	if providerMetadata, exists := state["provider_metadata"]; exists {
+		providerMetadataList, ok := providerMetadata.([]interface{})
+		if ok {
+			// Because the field was calculated there is no risk the element count will
+			// ever be != 1. If it somehow is though making it into an empty map
+			// should also be safe.
+			if len(providerMetadataList) == 1 {
+				state["provider_metadata"] = providerMetadataList[0]
+			} else {
+				state["provider_metadata"] = map[string]interface{}{}
+			}
+		}
+	}
+	return state, nil
 }
 
 func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string, metadata map[string]string) diag.Diagnostics {
