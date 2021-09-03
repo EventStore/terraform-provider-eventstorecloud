@@ -101,12 +101,12 @@ func resourcePeering() *schema.Resource {
 }
 
 func upgrade1_5_6(_ context.Context, state map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
-	// In version 1.5.6 we accidentally made the field `provider_metadata` into
-	// a set of maps instead of a map. Changing the type back to a map means
-	// users who have projects using 1.5.6 will get an unresolvable situation
-	// that even updating their code can't fix. So we need to check to see if
-	// this item is a map / list, and if so just change it into it's first
-	// (and only) item.
+	// In version 1.5.5 / 1.5.6 we accidentally made the field
+	// `provider_metadata` into a set of maps instead of a map. Changing the
+	// type back to a map means users who have projects using 1.5.6 will get an
+	// unresolvable situation that even updating their code can't fix. So we
+	// need to check to see if this item is a map / list, and if so just change
+	// it into it's first (and only) item.
 
 	if providerMetadata, exists := state["provider_metadata"]; exists {
 		providerMetadataList, ok := providerMetadata.([]interface{})
