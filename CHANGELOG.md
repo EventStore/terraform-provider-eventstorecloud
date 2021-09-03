@@ -1,3 +1,16 @@
+# 1.5.7 (September 2, 2021)
+
+Enhancements:
+
+* `resource/eventstorecloud_peering`: `provider_metadata` had been inadvertently changed into a set of maps. It's now back to being a map like before.
+
+# 1.5.6 (August 4, 2021)
+
+Enhancements:
+
+* Allow server version "21.6" for managed clusters
+
+
 # 1.5.5 (Jul 20, 2021)
 
 Enhancements:
