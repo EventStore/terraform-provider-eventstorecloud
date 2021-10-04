@@ -1,0 +1,1 @@
+terraform import eventstorecloud_scheduled_backup.daily backup_id

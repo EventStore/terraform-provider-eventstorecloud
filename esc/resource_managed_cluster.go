@@ -3,9 +3,9 @@ package esc
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -20,6 +20,10 @@ func resourceManagedCluster() *schema.Resource {
 		ReadContext:   resourceManagedClusterRead,
 		UpdateContext: resourceManagedClusterUpdate,
 		DeleteContext: resourceManagedClusterDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"project_id": {

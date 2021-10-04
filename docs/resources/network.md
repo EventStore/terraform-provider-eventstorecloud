@@ -43,4 +43,10 @@ resource "eventstorecloud_network" "example" {
 
 - **id** (String) The ID of this resource.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import eventstorecloud_network.example network_id
+```

@@ -1,0 +1,1 @@
+terraform import eventstorecloud_managed_cluster.example cluster_id

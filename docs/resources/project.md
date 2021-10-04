@@ -29,4 +29,10 @@ resource "eventstorecloud_project" "chicken_window" {
 
 - **id** (String) The ID of this resource.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import eventstorecloud_project.chicken_window project_id
+```

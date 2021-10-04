@@ -40,4 +40,10 @@ resource "eventstorecloud_scheduled_backup" "daily" {
 
 - **id** (String) The ID of this resource.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import eventstorecloud_scheduled_backup.daily backup_id
+```

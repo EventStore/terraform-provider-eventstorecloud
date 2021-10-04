@@ -1,0 +1,1 @@
+terraform import eventstorecloud_integration.opsgenie_issues integration_id

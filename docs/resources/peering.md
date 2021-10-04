@@ -31,19 +31,16 @@ Manages peering connections between Event Store Cloud VPCs and customer own VPCs
 
 ### Read-Only
 
-- **provider_metadata** (Set of Object) Metadata about the remote end of the peering connection (see [below for nested schema](#nestedatt--provider_metadata))
-
-<a id="nestedatt--provider_metadata"></a>
-### Nested Schema for `provider_metadata`
-
-Read-Only:
-
-- **aws_peering_link_id** (String)
-- **gcp_network_id** (String)
-- **gcp_network_name** (String)
-- **gcp_project_id** (String)
+- **provider_metadata** (Map of String) Metadata about the remote end of the peering connection
 
 
 
 ~> Keep in mind that additional operations might be required to activate the peering link. Check our [provisioning guidelines](https://developers.eventstore.com/cloud/provision/) for each of the supported cloud providers to know more.
 
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import eventstorecloud_peering.example peering_id
+```
