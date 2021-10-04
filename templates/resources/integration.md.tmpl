@@ -17,14 +17,6 @@ description: |-
 
 {{ .SchemaMarkdown | trimspace }}
 
-{{ if .HasImport -}}
-## Import
-
-Import is supported using the following syntax:
-
-{{ printf "{{codefile \"shell\" %q}}" .ImportFile }}
-{{- end }}
-
 ### Data Properties
 
 - **source** (String) Can be either `issues` or `notifications`. See [here](https://developers.eventstore.com/cloud/integrations/#integration-sources) for information on the types of integration sources
