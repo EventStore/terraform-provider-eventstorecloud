@@ -9,11 +9,9 @@ description: |-
 
 {{ .Description | trimspace }}
 
-{{ if .HasExample -}}
 ## Example Usage
 
-{{ printf "{{tffile %q}}" .ExampleFile }}
-{{- end }}
+{{ tffile "examples/resources/eventstorecloud_integration/resource.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}
 
