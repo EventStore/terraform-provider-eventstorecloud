@@ -33,10 +33,6 @@ Manages peering connections between Event Store Cloud VPCs and customer own VPCs
 
 - **provider_metadata** (Map of String) Metadata about the remote end of the peering connection
 
-
-
-~> Keep in mind that additional operations might be required to activate the peering link. Check our [provisioning guidelines](https://developers.eventstore.com/cloud/provision/) for each of the supported cloud providers to know more.
-
 ## Import
 
 Import is supported using the following syntax:
@@ -44,3 +40,5 @@ Import is supported using the following syntax:
 ```shell
 terraform import eventstorecloud_peering.example peering_id
 ```
+
+~> Keep in mind that additional operations might be required to activate the peering link. Check our [provisioning guidelines](https://developers.eventstore.com/cloud/provision/) for each of the supported cloud providers to know more.

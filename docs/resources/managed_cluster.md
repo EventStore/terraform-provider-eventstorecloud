@@ -36,8 +36,6 @@ Manages EventStoreDB instances and clusters in Event Store Cloud
 - **region** (String) Region in which the cluster was created. Determined by the region of the Network
 - **resource_provider** (String) Provider in which the cluster was created. Determined by the provider of the Network.
 
-
-
 ### Valid Values
 
 Use only the following values as `disk_type`:

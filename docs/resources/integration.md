@@ -24,8 +24,6 @@ Manages integration resources, for example Slack or OpsGenie.
 
 - **id** (String) The ID of this resource.
 
-
-
 ### Data Properties
 
 - **source** (String) Can be either `issues` or `notifications`. See [here](https://developers.eventstore.com/cloud/integrations/#integration-sources) for information on the types of integration sources
