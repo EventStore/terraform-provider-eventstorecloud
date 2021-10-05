@@ -48,5 +48,5 @@ resource "eventstorecloud_network" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import eventstorecloud_network.example network_id
+terraform import eventstorecloud_network.example project_id:network_id
 ```
