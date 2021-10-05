@@ -20,7 +20,7 @@ func resourceScheduledBackup() *schema.Resource {
 		Description: "Creates a new scheduled backup.",
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceImport,
 		},
 
 		Schema: map[string]*schema.Schema{

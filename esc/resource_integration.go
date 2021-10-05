@@ -22,7 +22,7 @@ func resourceIntegration() *schema.Resource {
 		Description: "Manages integration resources, for example Slack or OpsGenie.",
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceImport,
 		},
 
 		Schema: map[string]*schema.Schema{

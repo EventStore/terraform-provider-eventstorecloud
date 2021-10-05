@@ -2,7 +2,6 @@ package esc
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -11,29 +10,6 @@ import (
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
-
-// Parse an import id using {project_id}:{id} structure
-func parseImportID(importId string) ([]string, error) {
-	result := strings.Split(importId, ":")
-
-	if len(result) != 2 {
-		return nil, fmt.Errorf("failed to parse import id")
-	}
-
-	return result, nil
-}
-
-func resourceNetworkImport(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
-	idSlice, err := parseImportID(d.Id())
-	if err != nil {
-		return nil, err
-	}
-
-	d.Set("project_id", idSlice[0])
-	d.SetId(idSlice[1])
-
-	return []*schema.ResourceData{d}, nil
-}
 
 func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
@@ -45,7 +21,7 @@ func resourceNetwork() *schema.Resource {
 		DeleteContext: resourceNetworkDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceNetworkImport,
+			StateContext: resourceImport,
 		},
 
 		Schema: map[string]*schema.Schema{

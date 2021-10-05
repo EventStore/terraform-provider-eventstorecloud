@@ -22,7 +22,7 @@ func resourceManagedCluster() *schema.Resource {
 		DeleteContext: resourceManagedClusterDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceImport,
 		},
 
 		Schema: map[string]*schema.Schema{

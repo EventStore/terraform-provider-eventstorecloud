@@ -23,7 +23,7 @@ func resourcePeering() *schema.Resource {
 		DeleteContext: resourcePeeringDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceImport,
 		},
 
 		SchemaVersion: 1,
