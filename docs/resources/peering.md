@@ -38,7 +38,7 @@ Manages peering connections between Event Store Cloud VPCs and customer own VPCs
 Import is supported using the following syntax:
 
 ```shell
-terraform import eventstorecloud_peering.example peering_id
+terraform import eventstorecloud_peering.example project_id:peering_id
 ```
 
 ~> Keep in mind that additional operations might be required to activate the peering link. Check our [provisioning guidelines](https://developers.eventstore.com/cloud/provision/) for each of the supported cloud providers to know more.

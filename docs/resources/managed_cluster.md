@@ -80,5 +80,5 @@ Use one of the following values as `topology`:
 Import is supported using the following syntax:
 
 ```shell
-terraform import eventstorecloud_managed_cluster.example cluster_id
+terraform import eventstorecloud_managed_cluster.example project_id:cluster_id
 ```

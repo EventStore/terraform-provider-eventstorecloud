@@ -45,5 +45,5 @@ resource "eventstorecloud_scheduled_backup" "daily" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import eventstorecloud_scheduled_backup.daily backup_id
+terraform import eventstorecloud_scheduled_backup.daily project_id:backup_id
 ```

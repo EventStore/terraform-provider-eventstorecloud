@@ -51,5 +51,5 @@ Slack currently only supports the "issues" and "notification" sources. See [here
 Import is supported using the following syntax:
 
 ```shell
-terraform import eventstorecloud_integration.opsgenie_issues integration_id
+terraform import eventstorecloud_integration.opsgenie_issues project_id:integration_id
 ```
