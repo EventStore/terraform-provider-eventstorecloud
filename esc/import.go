@@ -13,7 +13,7 @@ func parseImportID(importId string) ([]string, error) {
 	result := strings.Split(importId, ":")
 
 	if len(result) != 2 {
-		return nil, fmt.Errorf("failed to parse import id")
+		return nil, fmt.Errorf("Failed to parse import id. Please use the format `{project_id}:{resource_id}`")
 	}
 
 	return result, nil
