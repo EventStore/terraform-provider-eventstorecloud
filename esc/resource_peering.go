@@ -252,6 +252,11 @@ func resourcePeeringRead(ctx context.Context, d *schema.ResourceData, meta inter
 		return diags
 	}
 
+	if resp.Peering.Status == client.StateDefunct {
+		diags = append(diags, diag.FromErr(fmt.Errorf("peering entered defunct state, check peering configuration"))...)
+		return diags
+	}
+
 	if err := d.Set("project_id", resp.Peering.ProjectID); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
