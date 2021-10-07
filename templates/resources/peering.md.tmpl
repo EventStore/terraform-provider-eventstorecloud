@@ -9,13 +9,18 @@ description: |-
 
 {{ .Description | trimspace }}
 
-{{ if .HasExample -}}
 ## Example Usage
 
-{{ printf "{{tffile %q}}" .ExampleFile }}
-{{- end }}
+{{ tffile "examples/resources/eventstorecloud_peering/resource.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}
+
+The `provider_metadata` block supports:
+
+* **aws_peering_link_id** (String) AWS Peering link ID for the peering. Empty if the peering Provider is not AWS.
+* **gcp_project_id** (String) GCP Project ID for the peering. Empty if the peering Provider is not GCP.
+* **gcp_network_name** (String) GCP Network Name for the peering. Empty if the peering Provider is not GCP.
+* **gcp_network_id** (String) GCP Network ID in URL format. Can be passed to google_compute_network_peering resources. Empty if the peering Provider is not GCP.
 
 ## Import
 
