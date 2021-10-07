@@ -17,20 +17,22 @@ From the AWS side, you still need to accept the peering request and configure th
 This step can be also automated using the AWS Terraform provider.
 
 ```terraform
-variable "peering_account_id" {
-  type = string
-}
+provider "aws" {
 
-variable "peering_network_id" {
-  type = string
 }
-
-variable "peering_route" {
-  type = string
-}
-
 provider "eventstorecloud" {
 
+}
+
+data "aws_caller_identity" "example" {
+}
+
+resource "aws_vpc" "example" {
+  cidr_block = "172.250.0.0/24"
+
+  tags = {
+    Name = "eventstore-example"
+  }
 }
 
 resource "eventstorecloud_project" "chicken_window" {
@@ -56,9 +58,25 @@ resource "eventstorecloud_peering" "peering" {
   peer_resource_provider = eventstorecloud_network.chicken_window.resource_provider
   peer_network_region    = eventstorecloud_network.chicken_window.region
 
-  peer_account_id = var.peering_account_id
-  peer_network_id = var.peering_network_id
-  routes          = [var.peering_route]
+  peer_account_id = data.aws_caller_identity.example.account_id
+  peer_network_id = aws_vpc.example.id
+  routes          = [aws_vpc.example.cidr_block]
+}
+
+resource "aws_vpc_peering_connection_accepter" "peer" {
+  vpc_peering_connection_id = eventstorecloud_peering.peering.provider_metadata.aws_peering_link_id
+  auto_accept               = true
+
+  tags = {
+    Side   = "Accepter"
+    Source = "Event Store"
+  }
+}
+
+resource "aws_route" "peering" {
+  route_table_id            = aws_vpc.example.main_route_table_id
+  destination_cidr_block    = eventstorecloud_network.chicken_window.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection_accepter.peer.id
 }
 
 resource "eventstorecloud_managed_cluster" "wings" {
@@ -71,7 +89,7 @@ resource "eventstorecloud_managed_cluster" "wings" {
   instance_type  = "F1"
   disk_size      = 16
   disk_type      = "gp2"
-  server_version = "20.6"
+  server_version = "21.6"
 }
 
 output "chicken_window_id" {

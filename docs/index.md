@@ -60,3 +60,4 @@ provider "eventstorecloud" {
 - **url** (String)
 
 [terraform]: (https://terraform.io)
+[esc]: https://eventstore.com/event-store-cloud/

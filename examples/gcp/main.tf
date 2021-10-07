@@ -1,16 +1,18 @@
-variable "peering_project_id" {
-  type = string
-}
-
-variable "peering_network_id" {
-  type = string
-}
-
 variable "peering_route" {
   type = string
 }
 
 provider "eventstorecloud" {
+}
+
+provider "google" {
+}
+
+data "google_project" "project" {
+}
+
+data "google_compute_network" "network" {
+  name = "default"
 }
 
 resource "eventstorecloud_project" "chicken_window" {
@@ -36,8 +38,8 @@ resource "eventstorecloud_peering" "peering" {
   peer_resource_provider = eventstorecloud_network.chicken_window.resource_provider
   peer_network_region    = eventstorecloud_network.chicken_window.region
 
-  peer_account_id = var.peering_project_id
-  peer_network_id = var.peering_network_id
+  peer_account_id = data.google_project.project.name
+  peer_network_id = data.google_compute_network.network.name
   routes          = [var.peering_route]
 }
 
@@ -51,8 +53,14 @@ resource "eventstorecloud_managed_cluster" "wings" {
   instance_type    = "F1"
   disk_size        = 16
   disk_type        = "ssd"
-  server_version   = "20.6"
+  server_version   = "21.6"
   projection_level = "user"
+}
+
+resource "google_compute_network_peering" "example" {
+  name         = "peering"
+  network      = data.google_compute_network.default.id
+  peer_network = eventstorecloud_peering.peering.provider_metadata.gcp_network_id
 }
 
 output "chicken_window_id" {
@@ -63,7 +71,7 @@ output "chicken_window_net" {
   value = eventstorecloud_network.chicken_window
 }
 
-output "chicken_window_peer" {
+output "chicken_window_peering" {
   value = eventstorecloud_peering.peering
 }
 
