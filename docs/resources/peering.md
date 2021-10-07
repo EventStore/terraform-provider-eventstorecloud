@@ -73,5 +73,6 @@ The `provider_metadata` block supports:
 * **gcp_network_id** (String) GCP Network ID in URL format. Can be passed to google_compute_network_peering resources. Empty if the peering Provider is not GCP.
 
 
+
 ~> Keep in mind that additional operations might be required to activate the peering link. Check our [provisioning guidelines](https://developers.eventstore.com/cloud/provision/) for each of the supported cloud providers to know more.
 
