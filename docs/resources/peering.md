@@ -65,6 +65,16 @@ resource "eventstorecloud_peering" "example" {
 
 - **provider_metadata** (Map of String) Metadata about the remote end of the peering connection
 
+The `provider_metadata` block supports:
+
+* `aws_peering_link_id` - (Optional) AWS Peering link ID for the peering. Empty if the peering Provider is not AWS.
+
+* `gcp_project_id` - (Optional) GCP Project ID for the peering. Empty if the peering Provider is not GCP.
+
+* `gcp_network_name` - (Optional) GCP Network Name for the peering. Empty if the peering Provider is not GCP.
+
+* `gcp_network_id` - (Optional) GCP Network ID in URL format. Can be passed to google_compute_network_peering resources. Empty if the peering Provider is not GCP.
+
 
 
 ~> Keep in mind that additional operations might be required to activate the peering link. Check our [provisioning guidelines](https://developers.eventstore.com/cloud/provision/) for each of the supported cloud providers to know more.
