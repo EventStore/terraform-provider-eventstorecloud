@@ -71,7 +71,7 @@ resource "eventstorecloud_managed_cluster" "wings" {
   instance_type    = "F1"
   disk_size        = 10
   disk_type        = "premium-ssd-lrs"
-  server_version   = "20.6"
+  server_version   = "21.6"
   projection_level = "user"
 }
 
@@ -83,7 +83,7 @@ output "chicken_window_net" {
   value = eventstorecloud_network.chicken_window
 }
 
-output "chicken_window_peer" {
+output "chicken_window_peering" {
   value = eventstorecloud_peering.peering
 }
 
