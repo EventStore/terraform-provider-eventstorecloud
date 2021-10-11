@@ -2,11 +2,12 @@ package esc
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
 
-	"github.com/EventStore/terraform-provider-eventstorecloud/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
 func resourceScheduledBackup() *schema.Resource {
@@ -17,6 +18,10 @@ func resourceScheduledBackup() *schema.Resource {
 		DeleteContext: resourceScheduledBackupDelete,
 
 		Description: "Creates a new scheduled backup.",
+
+		Importer: &schema.ResourceImporter{
+			StateContext: resourceImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"description": {

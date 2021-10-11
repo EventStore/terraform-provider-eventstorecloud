@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -22,6 +21,10 @@ func resourcePeering() *schema.Resource {
 		ReadContext:   resourcePeeringRead,
 		UpdateContext: resourcePeeringUpdate,
 		DeleteContext: resourcePeeringDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: resourceImport,
+		},
 
 		SchemaVersion: 1,
 		Schema: map[string]*schema.Schema{

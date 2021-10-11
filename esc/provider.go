@@ -3,14 +3,15 @@ package esc
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/EventStore/terraform-provider-eventstorecloud/client"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
 var defaultTokenStore = filepath.Join(os.Getenv("HOME"), ".esctf", "tokens")

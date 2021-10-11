@@ -67,8 +67,6 @@ resource "eventstorecloud_managed_cluster" "example" {
 - **region** (String) Region in which the cluster was created. Determined by the region of the Network
 - **resource_provider** (String) Provider in which the cluster was created. Determined by the provider of the Network.
 
-
-
 ### Valid Values
 
 Use only the following values as `disk_type`:
@@ -107,3 +105,11 @@ Check our [instance size guide](https://developers.eventstore.com/cloud/provisio
 Use one of the following values as `topology`:
 - `single-node`
 - `three-node-multi-zone
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import eventstorecloud_managed_cluster.example project_id:cluster_id
+```

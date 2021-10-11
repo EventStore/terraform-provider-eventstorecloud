@@ -47,8 +47,6 @@ resource "eventstorecloud_integration" "slack_notifications" {
 
 - **id** (String) The ID of this resource.
 
-
-
 ### Data Properties
 
 - **source** (String) Can be either `issues` or `notifications`. See [here](https://developers.eventstore.com/cloud/integrations/#integration-sources) for information on the types of integration sources
@@ -71,3 +69,10 @@ Slack currently only supports the "issues" and "notification" sources. See [here
 
 ~> The `token` value is considered private and so is NOT ever returned by the Event Store Cloud API. For that reason it is impossible to display it as a Terraform output value.
 
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import eventstorecloud_integration.opsgenie_issues project_id:integration_id
+```
