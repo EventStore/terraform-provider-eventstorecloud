@@ -63,6 +63,7 @@ func New(version string) func() *schema.Provider {
 
 			DataSourcesMap: map[string]*schema.Resource{
 				"eventstorecloud_project": dataSourceProject(),
+				"eventstorecloud_network": dataSourceNetwork(),
 			},
 
 			ResourcesMap: map[string]*schema.Resource{
