@@ -50,17 +50,18 @@ func dataSourceNetwork() *schema.Resource {
 func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
+	projectID := d.Get("project_id").(string)
+
 	resp, err := c.client.NetworkList(ctx, &client.ListNetworksRequest{
 		OrganizationID: c.organizationId,
-		ProjectID:      d.Get("project_id").(string),
+		ProjectID:      projectID,
 	})
 	if err != nil {
 		return err
 	}
 
 	if len(resp.Networks) == 0 {
-		return diag.Errorf("Your query returned no results. Please change " +
-			"your search criteria and try again.")
+		return diag.Errorf("There are no networks in project %s", projectID)
 	}
 
 	var found []*client.Network
@@ -73,12 +74,10 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if len(found) == 0 {
-		return diag.Errorf("Your query returned no results. Please change " +
-			"your search criteria and try again.")
+		return diag.Errorf("Network %s was not found in project %s", desiredName, projectID)
 	}
 	if len(found) > 1 {
-		return diag.Errorf("Your query returned more than one result. " +
-			"Please try a more specific search criteria.")
+		return diag.Errorf("There are more than one network with name %s in project %s", desiredName, projectID)
 	}
 
 	d.SetId(found[0].NetworkID)

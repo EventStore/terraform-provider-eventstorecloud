@@ -33,8 +33,7 @@ func dataSourceProjectRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if len(resp.Projects) == 0 {
-		return diag.Errorf("Your query returned no results. Please change " +
-			"your search criteria and try again.")
+		return diag.Errorf("There are no projects in organization %s", c.organizationId)
 	}
 
 	var found []*client.Project
@@ -47,12 +46,10 @@ func dataSourceProjectRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if len(found) == 0 {
-		return diag.Errorf("Your query returned no results. Please change " +
-			"your search criteria and try again.")
+		return diag.Errorf("Project %s was not found in organization %s", desiredName, c.organizationId)
 	}
 	if len(found) > 1 {
-		return diag.Errorf("Your query returned more than one result. " +
-			"Please try a more specific search criteria.")
+		return diag.Errorf("There are more than one project with name %s in organization %s", desiredName, c.organizationId)
 	}
 
 	d.SetId(found[0].ProjectID)
