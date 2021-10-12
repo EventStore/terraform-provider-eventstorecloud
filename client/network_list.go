@@ -20,7 +20,7 @@ type ListNetworksResponse struct {
 
 func (c *Client) NetworkList(ctx context.Context, req *ListNetworksRequest) (*ListNetworksResponse, diag.Diagnostics) {
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("resources", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "networks")
+	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "networks")
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL.String(), nil)
 	if err != nil {
