@@ -6,7 +6,7 @@ Enhancements:
 * Added a data source for networks
 * General documentation and example improvements
 * Improved error messages for peering resources in a defunct state
-* Improved error messages for project and network data sources
+* Improved error messages for project data source
 * Cluster names can now be updated
 
 # 1.5.7 (September 2, 2021)
