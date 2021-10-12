@@ -1,13 +1,13 @@
 terraform {
   required_providers {
     eventstorecloud = {
-      source  = "EventStore/eventstorecloud"
+      source = "EventStore/eventstorecloud"
     }
     azurerm = {
-      source  = "hashicorp/azurerm"
+      source = "hashicorp/azurerm"
     }
     azuread = {
-      source  = "hashicorp/azuread"
+      source = "hashicorp/azuread"
     }
   }
 }
@@ -29,13 +29,13 @@ variable "esc_token" {
 }
 
 variable "esc_organization_id" {
-  type = string
+  type        = string
   description = "Event Store Cloud Organization ID"
 }
 
 provider "azurerm" {
   features {}
-  subscription_id = var.azure_subscription_id
+  subscription_id            = var.azure_subscription_id
   skip_provider_registration = false
 }
 
@@ -90,7 +90,7 @@ resource "azurerm_role_definition" "chicken_window_peering" {
   description = "Grants ESC access to manage peering connections on network ${azurerm_virtual_network.chicken_window.id}"
 
   permissions {
-    actions     = [
+    actions = [
       "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/read",
       "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/write",
       "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/delete",
