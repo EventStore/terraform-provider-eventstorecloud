@@ -30,6 +30,9 @@ Issues may be reported via the [GitHub Repository][github-repo]. When reporting 
 
 - Any steps which required to reproduce the issue, including non-default Event Store server configuration.
 
+### Testing local changes
+Check the [Developer documentation](DEVELOPER.md)
+
 ### Writing a Pull Request
 
 A good client pull request makes a single set of coherent changes, with testing, documentation and a commit message which follows our [Commit Message Template][commit-template].
