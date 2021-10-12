@@ -1,3 +1,14 @@
+# 1.5.8 (October 12, 2021)
+
+Enhancements:
+
+* Import functionality has been added for all resources
+* Added a data source for networks
+* General documentation and example improvements
+* Improved error messages for peering resources in a defunct state
+* Improved error messages for project and network data sources
+* Cluster names can now be updated
+
 # 1.5.7 (September 2, 2021)
 
 Enhancements:
