@@ -1,3 +1,9 @@
+# 1.5.9 (October 18, 2021)
+
+Enhancements:
+* Add documentation for eventstorecloud_network data source
+* Update documentation for eventstorecloud_project data source
+
 # 1.5.8 (October 12, 2021)
 
 Enhancements:
