@@ -213,7 +213,7 @@ func resourcePeeringCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return err
 	}
 
-	return resourcePeeringRead(ctx, d, meta)
+	return resourcePeeringReadCheckDefunct(ctx, d, meta)
 }
 
 func resourcePeeringUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -236,6 +236,14 @@ func resourcePeeringUpdate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func resourcePeeringRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return resourcePeeringReadWithCheck(ctx, d, meta, false)
+}
+
+func resourcePeeringReadCheckDefunct(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return resourcePeeringReadWithCheck(ctx, d, meta, true)
+}
+
+func resourcePeeringReadWithCheck(ctx context.Context, d *schema.ResourceData, meta interface{}, errorOnDefunct bool) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -255,7 +263,7 @@ func resourcePeeringRead(ctx context.Context, d *schema.ResourceData, meta inter
 		return diags
 	}
 
-	if resp.Peering.Status == client.StateDefunct {
+	if errorOnDefunct && resp.Peering.Status == client.StateDefunct {
 		diags = append(diags, diag.FromErr(fmt.Errorf("peering %s (in project %s) entered defunct state, check peering configuration", peeringId, projectId))...)
 		return diags
 	}
