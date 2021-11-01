@@ -1,3 +1,10 @@
+# 1.5.10 (November 1, 2021)
+
+Fixes:
+
+* It's now possible to destroy defunct peering resources
+* Updating a peering resource no longer causes the provider to enter into a loop
+
 # 1.5.9 (October 18, 2021)
 
 Enhancements:
