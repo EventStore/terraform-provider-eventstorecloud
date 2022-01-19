@@ -1,3 +1,10 @@
+# 1.5.11 (January 19, 2022)
+
+Enhancements:
+
+* Allow server version "21.10" for managed clusters
+
+
 # 1.5.10 (November 1, 2021)
 
 Fixes:
