@@ -123,7 +123,7 @@ var slowResourceTimeout = &schema.ResourceTimeout{
 }
 
 var validProviders = []string{"aws", "gcp", "azure"}
-var validServerVersions = []string{"20.6", "20.10", "21.6"}
+var validServerVersions = []string{"20.10", "21.6", "21.10"}
 var validTopologies = []string{"single-node", "three-node-multi-zone"}
 var validInstanceTypes = []string{"F1", "C4", "M8", "M16", "M32", "M64", "M128"}
 var validDiskTypes = []string{"GP2", "SSD", "PREMIUM-SSD-LRS"}
