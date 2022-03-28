@@ -3,9 +3,10 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"path"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type ManagedCluster struct {
@@ -20,6 +21,8 @@ type ManagedCluster struct {
 	InstanceType    string `json:"instanceType"`
 	DiskSizeGB      int32  `json:"diskSizeGb"`
 	DiskType        string `json:"diskType"`
+	DiskIops        int32  `json:"diskIops"`
+	DiskThroughput  int32  `json:"diskThroughput"`
 	ServerVersion   string `json:"serverVersion"`
 	ProjectionLevel string `json:"projectionLevel"`
 	Status          string `json:"status"`

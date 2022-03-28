@@ -2,7 +2,6 @@ provider "aws" {
 
 }
 provider "eventstorecloud" {
-
 }
 
 data "aws_caller_identity" "example" {
