@@ -65,11 +65,13 @@ resource "eventstorecloud_managed_cluster" "wings" {
   project_id = eventstorecloud_network.chicken_window.project_id
   network_id = eventstorecloud_network.chicken_window.id
 
-  topology       = "single-node"
-  instance_type  = "F1"
-  disk_size      = 16
-  disk_type      = "gp2"
-  server_version = "21.6"
+  topology        = "single-node"
+  instance_type   = "F1"
+  disk_size       = 16
+  disk_type       = "gp3"
+  disk_iops       = 3000
+  disk_throughput = 125
+  server_version  = "21.6"
 }
 
 output "chicken_window_id" {

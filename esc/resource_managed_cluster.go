@@ -82,12 +82,12 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"disk_iops": {
-				Description: "IOPS for storage",
+				Description: "Number of IOPS for storage, required if disk_type is `gp3`",
 				Optional:    true,
 				Type:        schema.TypeInt,
 			},
 			"disk_throughput": {
-				Description: "IOPS for storage",
+				Description: "Throughput in MB/s for storage, required if disk_type is `gp3`",
 				Optional:    true,
 				Type:        schema.TypeInt,
 			},
