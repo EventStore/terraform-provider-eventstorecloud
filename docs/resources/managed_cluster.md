@@ -34,11 +34,13 @@ resource "eventstorecloud_managed_cluster" "example" {
   project_id = eventstorecloud_network.example.project_id
   network_id = eventstorecloud_network.example.id
 
-  topology       = "three-node-multi-zone"
-  instance_type  = "F1"
-  disk_size      = 24
-  disk_type      = "gp2"
-  server_version = "20.6"
+  topology        = "three-node-multi-zone"
+  instance_type   = "F1"
+  disk_size       = 24
+  disk_type       = "gp3"
+  disk_iops       = 3000
+  disk_throughput = 125
+  server_version  = "20.6"
 }
 ```
 
@@ -58,6 +60,8 @@ resource "eventstorecloud_managed_cluster" "example" {
 
 ### Optional
 
+- **disk_iops** (Number) Number of IOPS for storage, required if disk_type is `gp3`
+- **disk_throughput** (Number) Throughput in MB/s for storage, required if disk_type is `gp3`
 - **id** (String) The ID of this resource.
 - **projection_level** (String) Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below) Defaults to `off`.
 
@@ -75,12 +79,12 @@ Use only the following values as `disk_type`:
 | :------- | :--------- |
 | Azure | `premium-ssd-lrs` |
 | Google Cloud | `ssd` |
-| AWS | `gp2` |
+| AWS | `gp2`, `gp3` |
 
 For `server_version`, use one of the available EventStoreDB product versions:
-- `20.6`
 - `20.10`
 - `21.6`
+- `21.10`
 
 For `projection_level`, use one of the following values:
 - `off` (the projections subsystem is disabled completely)
@@ -104,7 +108,7 @@ Check our [instance size guide](https://developers.eventstore.com/cloud/provisio
 
 Use one of the following values as `topology`:
 - `single-node`
-- `three-node-multi-zone
+- `three-node-multi-zone`
 
 ## Import
 

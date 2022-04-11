@@ -21,6 +21,8 @@ func resourceManagedCluster() *schema.Resource {
 		UpdateContext: resourceManagedClusterUpdate,
 		DeleteContext: resourceManagedClusterDelete,
 
+		CustomizeDiff: resourceManagedClusterCustomizeDiff,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceImport,
 		},
@@ -79,6 +81,16 @@ func resourceManagedCluster() *schema.Resource {
 					return strings.ToLower(val.(string))
 				},
 			},
+			"disk_iops": {
+				Description: "Number of IOPS for storage, required if disk_type is `gp3`",
+				Optional:    true,
+				Type:        schema.TypeInt,
+			},
+			"disk_throughput": {
+				Description: "Throughput in MB/s for storage, required if disk_type is `gp3`",
+				Optional:    true,
+				Type:        schema.TypeInt,
+			},
 			"server_version": {
 				Description:  "Server version to provision (find the list of valid values below)",
 				Required:     true,
@@ -136,6 +148,8 @@ func resourceManagedClusterCreate(ctx context.Context, d *schema.ResourceData, m
 		InstanceType:    strings.ToLower(d.Get("instance_type").(string)),
 		DiskSizeGB:      int32(d.Get("disk_size").(int)),
 		DiskType:        strings.ToLower(d.Get("disk_type").(string)),
+		DiskIops:        int32(d.Get("disk_iops").(int)),
+		DiskThroughput:  int32(d.Get("disk_throughput").(int)),
 		ServerVersion:   strings.ToLower(d.Get("server_version").(string)),
 		ProjectionLevel: strings.ToLower(d.Get("projection_level").(string)),
 	}
@@ -200,6 +214,12 @@ func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, met
 	if err := d.Set("disk_type", resp.ManagedCluster.DiskType); err != nil {
 		return diag.FromErr(err)
 	}
+	if err := d.Set("disk_iops", resp.ManagedCluster.DiskIops); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("disk_throughput", resp.ManagedCluster.DiskThroughput); err != nil {
+		return diag.FromErr(err)
+	}
 	if err := d.Set("server_version", resp.ManagedCluster.ServerVersion); err != nil {
 		return diag.FromErr(err)
 	}
@@ -231,7 +251,7 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
 			ClusterID:      clusterId,
-			Description: 	d.Get("name").(string),
+			Description:    d.Get("name").(string),
 		}
 		if err := c.client.ManagedClusterUpdate(ctx, request); err != nil {
 			return err
@@ -290,4 +310,36 @@ func resourceManagedClusterDelete(ctx context.Context, d *schema.ResourceData, m
 		ClusterID:      clusterId,
 		State:          "deleted",
 	})
+}
+
+func resourceManagedClusterCustomizeDiff(ctx context.Context, diff *schema.ResourceDiff, v interface{}) error {
+	disk_type := diff.Get("disk_type").(string)
+	disk_iops := diff.Get("disk_iops").(int)
+	disk_throughput := diff.Get("disk_throughput").(int)
+
+	switch disk_type {
+	case "GP3", "gp3":
+		if disk_iops == 0 {
+			return fmt.Errorf("'iops' must be set when 'type' is '%s'", disk_type)
+		}
+		if disk_throughput == 0 {
+			return fmt.Errorf("'throughput' must be set when 'type' is '%s'", disk_type)
+		}
+		if disk_iops < 3000 || disk_iops > 16000 {
+			return fmt.Errorf("'iops' must be set between 3000 and 16000")
+		}
+		if disk_throughput < 125 || disk_throughput > 1000 {
+			return fmt.Errorf("'throughput' must be set between 125 and 1000")
+		}
+	default:
+		if disk_iops != 0 {
+			return fmt.Errorf("'iops' must not be set when 'type' is '%s'", disk_type)
+		}
+
+		if disk_throughput != 0 {
+			return fmt.Errorf("'throughput' must not be set when 'type' is '%s'", disk_type)
+		}
+	}
+
+	return nil
 }

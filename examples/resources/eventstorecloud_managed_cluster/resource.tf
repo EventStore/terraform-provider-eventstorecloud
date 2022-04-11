@@ -20,9 +20,11 @@ resource "eventstorecloud_managed_cluster" "example" {
   project_id = eventstorecloud_network.example.project_id
   network_id = eventstorecloud_network.example.id
 
-  topology       = "three-node-multi-zone"
-  instance_type  = "F1"
-  disk_size      = 24
-  disk_type      = "gp2"
-  server_version = "20.6"
+  topology        = "three-node-multi-zone"
+  instance_type   = "F1"
+  disk_size       = 24
+  disk_type       = "gp3"
+  disk_iops       = 3000
+  disk_throughput = 125
+  server_version  = "20.6"
 }
