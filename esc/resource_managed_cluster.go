@@ -51,14 +51,14 @@ func resourceManagedCluster() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice(validTopologies, true),
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validTopologies, true)),
 			},
 			"instance_type": {
 				Description:  "Instance type of the managed cluster (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice(validInstanceTypes, true),
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validInstanceTypes, true)),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -68,14 +68,14 @@ func resourceManagedCluster() *schema.Resource {
 				Description:  "Size of the data disks, in gigabytes",
 				Required:     true,
 				Type:         schema.TypeInt,
-				ValidateFunc: validation.IntBetween(8, 4096),
+				ValidateFunc: ValidateWithByPass(validation.IntBetween(8, 4096)),
 			},
 			"disk_type": {
 				Description:  "Storage class of the data disks (find the list of valid values below)",
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice(validDiskTypes, true),
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validDiskTypes, true)),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -96,7 +96,7 @@ func resourceManagedCluster() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice(validServerVersions, true),
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersions, true)),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -108,7 +108,7 @@ func resourceManagedCluster() *schema.Resource {
 				ForceNew:     true,
 				Default:      "off",
 				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice(validProjectionLevels, true),
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validProjectionLevels, true)),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
