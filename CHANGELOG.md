@@ -1,9 +1,20 @@
+# 1.5.13 (April 25, 2022)
+
+Fixes:
+
+* Server version `20.6` is now allowed again. While 20.6 cannot be used when creating new clusters, existing resources may already be using it, thus this plugin must allow it to avoid raising validation errors on otherwise innocuous actions such as "terraform plan"
+
+# 1.5.12 (April 11, 2022)
+
+Enhancements:
+
+* Support added for gp3 disk types in AWS clusters, which includes the ability to set iops and throughput parameters
+
 # 1.5.11 (January 19, 2022)
 
 Enhancements:
 
 * Allow server version "21.10" for managed clusters
-
 
 # 1.5.10 (November 1, 2021)
 
