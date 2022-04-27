@@ -1,3 +1,9 @@
+# 1.5.14 (April 27, 2022)
+
+Enhancements:
+
+* Added the ability to bypass local validation checks by setting the environment variable `ESC_BYPASS_VALIDATION`
+
 # 1.5.13 (April 25, 2022)
 
 Fixes:
