@@ -36,7 +36,7 @@ func resourceNetwork() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice(validProviders, true),
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validProviders, true)),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))

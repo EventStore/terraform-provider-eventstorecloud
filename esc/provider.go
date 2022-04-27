@@ -81,6 +81,21 @@ func New(version string) func() *schema.Provider {
 		return p
 	}
 }
+
+// This allows the Terraform validation to be bypassed. This can be useful if
+// your using an older version of the plugin which cannot be upgraded for
+// whatever reason and wish to use a newer allowed paramter value that the
+// EventStore Cloud API supports
+func ValidateWithByPass(f schema.SchemaValidateFunc) schema.SchemaValidateFunc {
+	if v := os.Getenv("ESC_BYPASS_VALIDATION"); v != "" {
+		return func(i interface{}, k string) (warnings []string, errors []error) {
+			return nil, nil
+		}
+	} else {
+		return f
+	}
+}
+
 func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	return func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		config := &client.Config{
