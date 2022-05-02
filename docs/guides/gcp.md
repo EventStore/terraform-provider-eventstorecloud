@@ -57,7 +57,7 @@ resource "eventstorecloud_peering" "peering" {
   peer_resource_provider = eventstorecloud_network.chicken_window.resource_provider
   peer_network_region    = eventstorecloud_network.chicken_window.region
 
-  peer_account_id = data.google_project.project.name
+  peer_account_id = data.google_project.project.project_id
   peer_network_id = data.google_compute_network.network.name
   routes          = [var.peering_route]
 }
@@ -77,9 +77,11 @@ resource "eventstorecloud_managed_cluster" "wings" {
 }
 
 resource "google_compute_network_peering" "example" {
-  name         = "peering"
-  network      = data.google_compute_network.default.id
-  peer_network = eventstorecloud_peering.peering.provider_metadata.gcp_network_id
+  name                 = "peering"
+  network              = data.google_compute_network.default.id
+  peer_network         = eventstorecloud_peering.peering.provider_metadata.gcp_network_id
+  export_custom_routes = true
+  import_custom_routes = true
 }
 
 output "chicken_window_id" {
