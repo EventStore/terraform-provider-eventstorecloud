@@ -59,6 +59,18 @@ func New(version string) func() *schema.Provider {
 					Required:    true,
 					DefaultFunc: schema.EnvDefaultFunc("ESC_TOKEN_STORE", defaultTokenStore),
 				},
+
+				"identity_provider_url": {
+					Type:        schema.TypeString,
+					Required:    true,
+					DefaultFunc: schema.EnvDefaultFunc("ESC_IDENTITY_PROVIDER_URL", ""),
+				},
+
+				"client_id": {
+					Type:        schema.TypeString,
+					Required:    true,
+					DefaultFunc: schema.EnvDefaultFunc("ESC_CLIENT_ID", ""),
+				},
 			},
 
 			DataSourcesMap: map[string]*schema.Resource{
@@ -99,9 +111,11 @@ func ValidateWithByPass(f schema.SchemaValidateFunc) schema.SchemaValidateFunc {
 func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	return func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		config := &client.Config{
-			URL:          d.Get("url").(string),
-			RefreshToken: d.Get("token").(string),
-			TokenStore:   d.Get("token_store").(string),
+			URL:                 d.Get("url").(string),
+			RefreshToken:        d.Get("token").(string),
+			TokenStore:          d.Get("token_store").(string),
+			IdentityProviderURL: d.Get("identity_provider_url").(string),
+			ClientID:            d.Get("client_id").(string),
 		}
 
 		c, err := client.New(config)
