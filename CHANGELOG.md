@@ -1,3 +1,9 @@
+# 1.5.15 (May 18, 2022)
+
+Enhancements:
+
+* Added the ability to configure esoteric auth options
+
 # 1.5.14 (April 27, 2022)
 
 Enhancements:
