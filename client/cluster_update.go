@@ -14,6 +14,7 @@ type ExpandManagedClusterDiskRequest struct {
 	ProjectID      string
 	ClusterID      string `json:"clusterId"`
 	DiskSizeGB     int32  `json:"diskSizeGb"`
+	DiskType       string `json:"diskType"`
 }
 
 func (c *Client) ManagedClusterExpandDisk(ctx context.Context, req *ExpandManagedClusterDiskRequest) diag.Diagnostics {
@@ -50,7 +51,7 @@ func (c *Client) ManagedClusterExpandDisk(ctx context.Context, req *ExpandManage
 type ManagedClusterUpdateRequest struct {
 	OrganizationID string
 	ProjectID      string
-	ClusterID 	   string
+	ClusterID      string
 	Description    string `json:"description"`
 }
 

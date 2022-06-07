@@ -270,6 +270,7 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 			ProjectID:      projectId,
 			ClusterID:      clusterId,
 			DiskSizeGB:     int32(newSize),
+			DiskType:       d.Get("disk_type").(string),
 		}
 		if err := c.client.ManagedClusterExpandDisk(ctx, request); err != nil {
 			return err
