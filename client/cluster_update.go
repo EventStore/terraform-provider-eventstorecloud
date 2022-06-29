@@ -4,16 +4,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"path"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type ExpandManagedClusterDiskRequest struct {
 	OrganizationID string
 	ProjectID      string
 	ClusterID      string `json:"clusterId"`
+	DiskIops       int32  `json:"diskIops,omitempty"`
 	DiskSizeGB     int32  `json:"diskSizeGb"`
+	DiskThroughput int32  `json:"diskThroughput,omitempty"`
+	DiskType       string `json:"diskType"`
 }
 
 func (c *Client) ManagedClusterExpandDisk(ctx context.Context, req *ExpandManagedClusterDiskRequest) diag.Diagnostics {
@@ -50,7 +54,7 @@ func (c *Client) ManagedClusterExpandDisk(ctx context.Context, req *ExpandManage
 type ManagedClusterUpdateRequest struct {
 	OrganizationID string
 	ProjectID      string
-	ClusterID 	   string
+	ClusterID      string
 	Description    string `json:"description"`
 }
 
