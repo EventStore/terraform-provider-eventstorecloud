@@ -1,8 +1,14 @@
+# 1.5.17 (June 30, 2022)
+
+Enhancements:
+
+* Two new resources have been added: `integration_awscloudwatch_logs` and `integration_awscloudwatch_metrics`. Both can be used with the two new integration sinks targetting Aws CloudWatch which are currently in Beta 
+
 # 1.5.16 (June 29, 2022)
 
 Fixes:
 
-* Changing an eventstorecloud_managed_cluster resource's `disk_type` value would cause the apply to fail. This has been fixed so now disk-expand is called as expected, updating the cluster is updated in place.
+* Changing an eventstorecloud_managed_cluster resource's `disk_type` value would cause the apply to fail. This has been fixed so now disk-expand is called as expected and updates the cluster in place.
 * Similarly the eventstorecloud_managed_cluster resource fields `disk_ips` and `disk_throughput` were not being passed correctly during updates. This has also been fixed.
 
 # 1.5.15 (May 18, 2022)
