@@ -9,7 +9,6 @@ resource "aws_iam_access_key" "esdb_metrics" {
 resource "aws_iam_user" "esdb_metrics" {
   name = "esdb_metrics_user-${var.stage}"
   path = "/esdb_metrics/"
-  # TODO: make path use `stage`?
 }
 
 resource "aws_iam_user_policy" "esdb_metrics" {
