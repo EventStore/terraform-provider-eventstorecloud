@@ -19,7 +19,9 @@ func resourceIntegrationAwsCloudWatchMetrics() *schema.Resource {
 		DeleteContext: resourceIntegrationAwsCloudWatchMetricsDelete,
 		UpdateContext: resourceIntegrationAwsCloudWatchMetricsUpdate,
 
-		Description: "Manages integrations of sink AwsCloudWatch with metrics as their source",
+		Description: `Manages integrations for AwsCloudWatch metrics.
+
+**NOTE**: This functionality is currently in beta. To access it please contact support.`,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceImport,

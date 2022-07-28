@@ -19,7 +19,9 @@ func resourceIntegrationAwsCloudWatchLogs() *schema.Resource {
 		DeleteContext: resourceIntegrationAwsCloudWatchLogsDelete,
 		UpdateContext: resourceIntegrationAwsCloudWatchLogsUpdate,
 
-		Description: "Manages integrations of sink AwsCloudWatch with logs as their source",
+		Description: `Manages integrations for AwsCloudWatch logs.
+
+**NOTE**: This functionality is currently in beta. To access it please contact support.`,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceImport,
@@ -27,7 +29,7 @@ func resourceIntegrationAwsCloudWatchLogs() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"access_key_id": {
-				Description: "AWS IAM access key",
+				Description: "The access key ID of IAM credentials which have permissions to create and write to the log group",
 				Required:    false,
 				ForceNew:    false,
 				Optional:    true,
@@ -68,7 +70,7 @@ func resourceIntegrationAwsCloudWatchLogs() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"secret_access_key": {
-				Description: "AWS IAM secret access key",
+				Description: "The secret access key of IAM credentials which will be used to write to the log groups",
 				Required:    false,
 				ForceNew:    false,
 				Optional:    true,

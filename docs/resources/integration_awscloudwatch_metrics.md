@@ -2,21 +2,21 @@
 page_title: "Resource eventstorecloud_integration_awscloudwatch_metrics - terraform-provider-eventstorecloud"
 subcategory: ""
 description: |-
-  Manages AwsCloudWatch integration sink resources
+  Manages integrations for AwsCloudWatch metrics.
+  NOTE: This functionality is currently in beta. To access it please contact support.
 ---
 
 # Resource (eventstorecloud_integration_awscloudwatch_metrics)
 
-Manages AwsCloudWatch integration sinks.
+Manages integrations for AwsCloudWatch metrics.
 
 **NOTE**: This functionality is currently in beta. To access it please contact support.
 
 ## Example Usage
 
 ```terraform
-
 locals {
-  metric_namespace        = "esdb_metrics_${var.stage}"
+  metric_namespace = "esdb_metrics_${var.stage}"
 }
 
 resource "aws_iam_access_key" "esdb_metrics" {
@@ -60,12 +60,12 @@ EOF
 }
 
 
-resource "eventstorecloud_integration_awscloudwatch_metrics" "cloudwatch"{
+resource "eventstorecloud_integration_awscloudwatch_metrics" "cloudwatch" {
   project_id        = var.project_id
-  cluster_ids       = [ var.cluster_id ]
+  cluster_ids       = [var.cluster_id]
   description       = "send ESDB metrics to AWS CloudWatch"
   access_key_id     = aws_iam_access_key.esdb_metrics.id
-  secret_access_key = aws_iam_access_key.esdb_metrics.secret  
+  secret_access_key = aws_iam_access_key.esdb_metrics.secret
   region            = var.region
   namespace         = local.metric_namespace
 }
@@ -76,22 +76,17 @@ resource "eventstorecloud_integration_awscloudwatch_metrics" "cloudwatch"{
 
 ### Required
 
-- **access_key_id** (String) The access key ID of IAM credentials which have permissions to create and write to the log group
-- **cluster_ids** (List) List of cluster IDs to which the integration applies
+- **cluster_ids** (List of String) Clusters to be used with this integration
 - **description** (String) Human readable description of the integration
-- **namespace** (String) The name of the metric namespace
+- **namespace** (String) Name of the CloudWatch namespace
 - **project_id** (String) ID of the project to which the integration applies
-- **region** (String) The AWS region name of the log group
-- **secret_access_key** (String) The secret access key of IAM credentials which will be used to write to the log groups
-- **source** (String) The source of the AwsCloudWatch integration sink (currently this may only be "metrics")
+- **region** (String) AWS region for group
 
-## Import
+### Optional
 
-Import is supported using the following syntax:
-
-```shell
-terraform import eventstorecloud_integration_awscloudwatch_metrics.cloudwatch project_id:integration_id
-```
+- **access_key_id** (String, Sensitive) AWS IAM access key
+- **id** (String) The ID of this resource.
+- **secret_access_key** (String, Sensitive) AWS IAM secret access key
 
 ## IAM Credentials and Security Implications
 
