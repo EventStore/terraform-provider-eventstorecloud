@@ -14,7 +14,7 @@ generate:  ## Generates the docs
 ci: ## Performs the same checks as ci
 	go build
 	go generate
-	git diff --exit-code  || (echo 'missing commits, or code was not generated' && exit 1)
+	git diff --exit-code  || (echo 'missing commits - were generated docs checked in?' && exit 1)
 
 .PHONY: install
 install: ## Install the binary to the default target path
