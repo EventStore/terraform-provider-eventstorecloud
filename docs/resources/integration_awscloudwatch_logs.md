@@ -2,19 +2,19 @@
 page_title: "Resource eventstorecloud_integration_awscloudwatch_logs - terraform-provider-eventstorecloud"
 subcategory: ""
 description: |-
-  Manages AwsCloudWatch integration sink resources
+  Manages integrations for AwsCloudWatch logs.
+  NOTE: This functionality is currently in beta. To access it please contact support.
 ---
 
 # Resource (eventstorecloud_integration_awscloudwatch_logs)
 
-Manages AwsCloudWatch integration sinks.
+Manages integrations for AwsCloudWatch logs.
 
 **NOTE**: This functionality is currently in beta. To access it please contact support.
 
 ## Example Usage
 
 ```terraform
-
 locals {
   describe_log_groups_arn = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:*"
 }
@@ -31,7 +31,7 @@ resource "aws_iam_access_key" "esdb_logs" {
 
 resource "aws_iam_user" "esdb_logs" {
   name = "esdb_logs_user-${var.stage}"
-  path = "/esdb_logs/"  
+  path = "/esdb_logs/"
 }
 
 resource "aws_iam_user_policy" "esdb_logs" {
@@ -63,9 +63,9 @@ resource "aws_iam_user_policy" "esdb_logs" {
 EOF
 }
 
-resource "eventstorecloud_integration_awscloudwatch_logs" "cloudwatch"{
+resource "eventstorecloud_integration_awscloudwatch_logs" "cloudwatch" {
   project_id        = var.project_id
-  cluster_ids       = [ var.cluster_id ]
+  cluster_ids       = [var.cluster_id]
   description       = "send ESDB logs to AWS CloudWatch"
   access_key_id     = aws_iam_access_key.esdb_logs.id
   secret_access_key = aws_iam_access_key.esdb_logs.secret
@@ -79,22 +79,17 @@ resource "eventstorecloud_integration_awscloudwatch_logs" "cloudwatch"{
 
 ### Required
 
-- **access_key_id** (String) The access key ID of IAM credentials which have permissions to create and write to the log group
-- **cluster_ids** (List) List of cluster IDs to which the integration applies
+- **cluster_ids** (List of String) Clusters to be used with this integration
 - **description** (String) Human readable description of the integration
-- **group_name** (String) The name of the log group
+- **group_name** (String) Name of the CloudWatch group
 - **project_id** (String) ID of the project to which the integration applies
-- **region** (String) The AWS region name of the log group
-- **secret_access_key** (String) The secret access key of IAM credentials which will be used to write to the log groups
-- **source** (String) The source of the AwsCloudWatch integration sink (currently this may only be "logs")
+- **region** (String) AWS region for group
 
-## Import
+### Optional
 
-Import is supported using the following syntax:
-
-```shell
-terraform import eventstorecloud_integration_awscloudwatch_logs.cloudwatch project_id:integration_id
-```
+- **access_key_id** (String, Sensitive) The access key ID of IAM credentials which have permissions to create and write to the log group
+- **id** (String) The ID of this resource.
+- **secret_access_key** (String, Sensitive) The secret access key of IAM credentials which will be used to write to the log groups
 
 ## IAM Credentials and Security Implications
 

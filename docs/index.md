@@ -54,6 +54,8 @@ provider "eventstorecloud" {
 
 ### Optional
 
+- **client_id** (String)
+- **identity_provider_url** (String)
 - **organization_id** (String)
 - **token** (String, Sensitive)
 - **token_store** (String)
