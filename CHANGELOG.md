@@ -1,3 +1,9 @@
+# 1.5.18 (August 1, 2022)
+
+Fixes:
+
+* The documentation generation process is now fixed after having been broken by the previous release. The docs themselves have minor changes and improvements.
+
 # 1.5.17 (June 30, 2022)
 
 Enhancements:
