@@ -1,3 +1,10 @@
+# 1.5.19 (August 1, 2022)
+
+Changes:
+
+* The provider is now built with Go version 1.18
+* Versions of CI tools needed to release the code have been updated to overcome regressions.
+
 # 1.5.18 (August 1, 2022)
 
 Fixes:
