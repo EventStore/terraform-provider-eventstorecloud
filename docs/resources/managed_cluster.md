@@ -55,7 +55,7 @@ resource "eventstorecloud_managed_cluster" "example" {
 - **name** (String) Name of the managed cluster
 - **network_id** (String) ID of the network in which the managed cluster exists
 - **project_id** (String) ID of the project in which the managed cluster exists
-- **server_version** (String) Server version to provision
+- **server_version** (String) Server version to provision (find the list of valid values below)
 - **topology** (String) Topology of the managed cluster (`single-node` or `three-node-multi-zone`)
 
 ### Optional
@@ -81,7 +81,10 @@ Use only the following values as `disk_type`:
 | Google Cloud | `ssd` |
 | AWS | `gp2`, `gp3` |
 
-For `server_version`, 2 latest LTS versions (xx.10) and 1 feature version (xx.6) are available.
+For `server_version`, use one of the available EventStoreDB product versions:
+- `20.10`
+- `21.10`
+- `22.6`
 
 For `projection_level`, use one of the following values:
 - `off` (the projections subsystem is disabled completely)

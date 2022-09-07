@@ -92,10 +92,11 @@ func resourceManagedCluster() *schema.Resource {
 				Type:        schema.TypeInt,
 			},
 			"server_version": {
-				Description: "Server version to provision",
-				Required:    true,
-				ForceNew:    true,
-				Type:        schema.TypeString,
+				Description:  "Server version to provision (find the list of valid values below)",
+				Required:     true,
+				ForceNew:     true,
+				Type:         schema.TypeString,
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersions, true)),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
