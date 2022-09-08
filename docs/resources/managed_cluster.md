@@ -83,8 +83,8 @@ Use only the following values as `disk_type`:
 
 For `server_version`, use one of the available EventStoreDB product versions:
 - `20.10`
-- `21.6`
 - `21.10`
+- `22.6`
 
 For `projection_level`, use one of the following values:
 - `off` (the projections subsystem is disabled completely)

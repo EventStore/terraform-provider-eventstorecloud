@@ -17,6 +17,14 @@ From the GCP side, you still need to create an incoming peering from your GCP ac
 This step can be also automated using the GCP Terraform provider.
 
 ```terraform
+terraform {
+  required_providers {
+    eventstorecloud = {
+      source = "EventStore/eventstorecloud"
+    }
+  }
+}
+
 variable "peering_route" {
   type = string
 }
@@ -72,7 +80,7 @@ resource "eventstorecloud_managed_cluster" "wings" {
   instance_type    = "F1"
   disk_size        = 16
   disk_type        = "ssd"
-  server_version   = "21.6"
+  server_version   = "22.6"
   projection_level = "user"
 }
 

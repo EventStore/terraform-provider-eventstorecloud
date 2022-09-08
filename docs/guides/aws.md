@@ -17,9 +17,18 @@ From the AWS side, you still need to accept the peering request and configure th
 This step can be also automated using the AWS Terraform provider.
 
 ```terraform
+terraform {
+  required_providers {
+    eventstorecloud = {
+      source = "EventStore/eventstorecloud"
+    }
+  }
+}
+
 provider "aws" {
 
 }
+
 provider "eventstorecloud" {
 }
 
@@ -90,7 +99,7 @@ resource "eventstorecloud_managed_cluster" "wings" {
   disk_type       = "gp3"
   disk_iops       = 3000
   disk_throughput = 125
-  server_version  = "21.6"
+  server_version  = "22.6"
 }
 
 output "chicken_window_id" {
