@@ -8,7 +8,7 @@ Changes:
 
 Changes:
 
-* `server_version` is now 22.6
+* Allow server version "22.6" for managed clusters.
 
 # 1.5.19 (August 4, 2022)
 
