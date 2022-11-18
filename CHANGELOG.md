@@ -1,3 +1,15 @@
+# 1.5.21 (November 18, 2022)
+
+Changes:
+
+* `resource/eventstorecloud_peering` : `routes` prefix length is now allowed to be up to 28 instead of 27.
+
+# 1.5.20 (September 8, 2022)
+
+Changes:
+
+* Allow server version "22.6" for managed clusters.
+
 # 1.5.19 (August 4, 2022)
 
 Changes:
