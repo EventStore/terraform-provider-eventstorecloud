@@ -85,6 +85,7 @@ For `server_version`, use one of the available EventStoreDB product versions:
 - `20.10`
 - `21.10`
 - `22.6`
+- `22.10`
 
 For `projection_level`, use one of the following values:
 - `off` (the projections subsystem is disabled completely)
