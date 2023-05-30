@@ -176,8 +176,6 @@ func resourceManagedClusterCreate(ctx context.Context, d *schema.ResourceData, m
 func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
-	var diags diag.Diagnostics
-
 	projectId := d.Get("project_id").(string)
 	clusterId := d.Id()
 
@@ -188,9 +186,13 @@ func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	resp, err := c.client.ManagedClusterGet(ctx, request)
-	if err != nil || resp.ManagedCluster.Status == client.StateDeleted {
+	if err != nil {
+		return err
+	}
+
+	if resp.ManagedCluster.Status == client.StateDeleted {
 		d.SetId("")
-		return diags
+		return nil
 	}
 
 	if err := d.Set("project_id", resp.ManagedCluster.ProjectID); err != nil {
