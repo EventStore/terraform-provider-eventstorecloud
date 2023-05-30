@@ -135,9 +135,12 @@ func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	resp, err := c.client.NetworkGet(ctx, request)
-	if err != nil || resp.Network.Status == client.StateDeleted {
+	if err != nil {
+		return diag.Errorf("Internal Server Error, try again later")
+	}
+	if resp.Network.Status == client.StateDeleted {
 		d.SetId("")
-		return diags
+		return nil
 	}
 
 	if err := d.Set("project_id", resp.Network.ProjectID); err != nil {
