@@ -188,56 +188,59 @@ func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	resp, err := c.client.ManagedClusterGet(ctx, request)
-	if err != nil || resp.ManagedCluster.Status == client.StateDeleted {
+	if err != nil {
+		return diag.Errorf("Internal Server Error, try again later")
+	}
+
+	if resp.ManagedCluster.Status == client.StateDeleted {
 		d.SetId("")
-		return diags
+		return nil
 	}
 
 	if err := d.Set("project_id", resp.ManagedCluster.ProjectID); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("network_id", resp.ManagedCluster.NetworkID); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("name", resp.ManagedCluster.Name); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("topology", resp.ManagedCluster.Topology); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("instance_type", resp.ManagedCluster.InstanceType); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("disk_size", int(resp.ManagedCluster.DiskSizeGB)); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("disk_type", resp.ManagedCluster.DiskType); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("disk_iops", resp.ManagedCluster.DiskIops); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("disk_throughput", resp.ManagedCluster.DiskThroughput); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("server_version", resp.ManagedCluster.ServerVersion); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("projection_level", resp.ManagedCluster.ProjectionLevel); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
-
 	if err := d.Set("resource_provider", resp.ManagedCluster.Provider); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("region", resp.ManagedCluster.Region); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("dns_name", fmt.Sprintf("%s.mesdb.eventstore.cloud", resp.ManagedCluster.ClusterID)); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 
-	return nil
+	return diags
 }
 
 func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

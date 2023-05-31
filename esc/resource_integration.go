@@ -136,9 +136,12 @@ func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, meta i
 	integrationId := d.Id()
 
 	resp, err := c.client.GetIntegration(ctx, c.organizationId, projectId, integrationId)
-	if err != nil || resp.Integration.Status == client.StateDeleted {
+	if err != nil {
+		return diag.Errorf("Internal Server Error, try again later")
+	}
+	if resp.Integration.Status == client.StateDeleted {
 		d.SetId("")
-		return diags
+		return nil
 	}
 
 	if err := d.Set("description", resp.Integration.Description); err != nil {

@@ -62,12 +62,11 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	resp, err := c.client.ProjectGet(ctx, request)
 	if err != nil {
-		d.SetId("")
-		return diags
+		return diag.Errorf("Internal Server Error, try again later")
 	}
 
 	if err := d.Set("name", resp.Project.Name); err != nil {
-		return diag.FromErr(err)
+		diags = append(diags, diag.FromErr(err)...)
 	}
 
 	return diags

@@ -146,9 +146,13 @@ func resourceIntegrationAwsCloudWatchLogsRead(ctx context.Context, d *schema.Res
 	integrationId := d.Id()
 
 	resp, err := c.client.GetIntegration(ctx, c.organizationId, projectId, integrationId)
-	if err != nil || resp.Integration.Status == client.StateDeleted {
+	if err != nil {
+		return diag.Errorf("Internal Server Error, try again later")
+	}
+
+	if resp.Integration.Status == client.StateDeleted {
 		d.SetId("")
-		return diags
+		return nil
 	}
 
 	if err := d.Set("description", resp.Integration.Description); err != nil {
@@ -180,8 +184,6 @@ func resourceIntegrationAwsCloudWatchLogsRead(ctx context.Context, d *schema.Res
 func resourceIntegrationAwsCloudWatchLogsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
-	var diags diag.Diagnostics
-
 	projectId := d.Get("project_id").(string)
 	integrationId := d.Id()
 
@@ -200,7 +202,7 @@ func resourceIntegrationAwsCloudWatchLogsDelete(ctx context.Context, d *schema.R
 			return diag.Errorf("integration %q (%q) does not seem to be deleting", integrationId, d.Get("description"))
 		}
 		if resp.Integration.Status == "deleted" {
-			return diags
+			return nil
 		}
 		time.Sleep(1.0)
 	}

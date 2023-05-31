@@ -98,9 +98,13 @@ func resourceScheduledBackupRead(ctx context.Context, d *schema.ResourceData, me
 	var diags diag.Diagnostics
 
 	resp, err := c.client.GetJob(ctx, c.organizationId, projectId, jobId)
-	if err != nil || resp.Job.Status == client.StateDeleted {
+	if err != nil {
+		return diag.Errorf("Internal Server Error, try again later")
+	}
+
+	if resp.Job.Status == client.StateDeleted {
 		d.SetId("")
-		return diags
+		return nil
 	}
 	if err := d.Set("description", resp.Job.Description); err != nil {
 		diags = append(diags, diag.FromErr(err)...)

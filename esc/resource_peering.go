@@ -258,9 +258,12 @@ func resourcePeeringReadWithCheck(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	resp, err := c.client.PeeringGet(ctx, request)
-	if err != nil || resp.Peering.Status == client.StateDeleted {
+	if err != nil {
+		return diag.Errorf("Internal Server Error, try again later")
+	}
+	if resp.Peering.Status == client.StateDeleted {
 		d.SetId("")
-		return diags
+		return nil
 	}
 
 	if errorOnDefunct && resp.Peering.Status == client.StateDefunct {
