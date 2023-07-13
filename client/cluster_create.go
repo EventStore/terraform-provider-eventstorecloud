@@ -24,6 +24,7 @@ type CreateManagedClusterRequest struct {
 	ServerVersion   string `json:"serverVersion"`
 	ProjectionLevel string `json:"projectionLevel"`
 	CloudAuth       bool   `json:"cloudIntegratedAuthentication"`
+	Protected       bool   `json:"protected"`
 }
 
 type CreateManagedClusterResponse struct {

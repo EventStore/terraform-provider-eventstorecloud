@@ -114,7 +114,6 @@ func resourceManagedCluster() *schema.Resource {
 					return strings.ToLower(val.(string))
 				},
 			},
-
 			"resource_provider": {
 				Description: "Provider in which the cluster was created. Determined by the provider of the Network.",
 				Type:        schema.TypeString,
@@ -129,6 +128,11 @@ func resourceManagedCluster() *schema.Resource {
 				Description: "DNS address of the cluster",
 				Type:        schema.TypeString,
 				Computed:    true,
+			},
+			"protected": {
+				Description: "Protection from an accidental cluster deletion",
+				Type:        schema.TypeBool,
+				Optional:    true,
 			},
 		},
 	}
@@ -152,6 +156,7 @@ func resourceManagedClusterCreate(ctx context.Context, d *schema.ResourceData, m
 		DiskThroughput:  int32(d.Get("disk_throughput").(int)),
 		ServerVersion:   strings.ToLower(d.Get("server_version").(string)),
 		ProjectionLevel: strings.ToLower(d.Get("projection_level").(string)),
+		Protected:       d.Get("protected").(bool),
 	}
 
 	resp, err := c.client.ManagedClusterCreate(ctx, request)
@@ -239,6 +244,9 @@ func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, met
 	if err := d.Set("dns_name", fmt.Sprintf("%s.mesdb.eventstore.cloud", resp.ManagedCluster.ClusterID)); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
+	if err := d.Set("protected", resp.ManagedCluster.Protected); err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+	}
 
 	return diags
 }
@@ -249,13 +257,21 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 	projectId := d.Get("project_id").(string)
 	clusterId := d.Id()
 
-	if d.HasChange("name") {
+	if d.HasChange("name") || d.HasChange("protected") {
 		request := &client.ManagedClusterUpdateRequest{
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
 			ClusterID:      clusterId,
-			Description:    d.Get("name").(string),
 		}
+
+		if d.HasChange("name") {
+			request.Description = d.Get("name").(string)
+		}
+
+		if d.HasChange("protected") {
+			request.Protected = d.Get("protected").(bool)
+		}
+
 		if err := c.client.ManagedClusterUpdate(ctx, request); err != nil {
 			return err
 		}
