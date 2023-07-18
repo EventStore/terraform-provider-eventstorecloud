@@ -262,14 +262,8 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
 			ClusterID:      clusterId,
-		}
-
-		if d.HasChange("name") {
-			request.Description = d.Get("name").(string)
-		}
-
-		if d.HasChange("protected") {
-			request.Protected = d.Get("protected").(bool)
+			Description:    d.Get("name").(string),
+			Protected:      d.Get("protected").(bool),
 		}
 
 		if err := c.client.ManagedClusterUpdate(ctx, request); err != nil {
