@@ -132,6 +132,7 @@ func resourceManagedCluster() *schema.Resource {
 			"protected": {
 				Description: "Protection from an accidental cluster deletion",
 				Type:        schema.TypeBool,
+				Default:     false,
 				Optional:    true,
 			},
 		},

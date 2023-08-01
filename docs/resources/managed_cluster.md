@@ -64,7 +64,7 @@ resource "eventstorecloud_managed_cluster" "example" {
 - **disk_throughput** (Number) Throughput in MB/s for storage, required if disk_type is `gp3`
 - **id** (String) The ID of this resource.
 - **projection_level** (String) Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below) Defaults to `off`.
-- **protected** (Boolean) Protection from an accidental cluster deletion
+- **protected** (Boolean) Protection from an accidental cluster deletion Defaults to `false`.
 
 ### Read-Only
 
