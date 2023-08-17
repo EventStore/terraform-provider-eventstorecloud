@@ -1,3 +1,9 @@
+# 1.5.24  (August 17, 2023)
+
+Changes:
+
+* Add an ability to protect a cluster from removal
+
 # 1.5.22  (January 11, 2023)
 
 Changes:
