@@ -56,6 +56,7 @@ type ManagedClusterUpdateRequest struct {
 	ProjectID      string
 	ClusterID      string
 	Description    string `json:"description"`
+	Protected      bool   `json:"protected"`
 }
 
 func (c *Client) ManagedClusterUpdate(ctx context.Context, req *ManagedClusterUpdateRequest) diag.Diagnostics {

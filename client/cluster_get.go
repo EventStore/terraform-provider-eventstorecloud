@@ -27,6 +27,7 @@ type ManagedCluster struct {
 	ProjectionLevel string `json:"projectionLevel"`
 	Status          string `json:"status"`
 	Created         string `json:"created"`
+	Protected       bool   `json:"protected"`
 }
 
 type GetManagedClusterRequest struct {
