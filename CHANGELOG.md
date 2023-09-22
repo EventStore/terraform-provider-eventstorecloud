@@ -1,3 +1,9 @@
+# 1.5.25  (September 22, 2023)
+
+Changes:
+
+* Allow server version "23.6" for managed clusters
+
 # 1.5.24  (August 17, 2023)
 
 Changes:
