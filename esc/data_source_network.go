@@ -64,26 +64,23 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("There are no networks in project %s", projectID)
 	}
 
-	var found []*client.Network
+	var found *client.Network
 	desiredName := d.Get("name").(string)
 	for _, network := range resp.Networks {
-		if network.Name == desiredName {
-			found = append(found, &network)
+		if network.Name == desiredName && network.Status == "available" {
+			found = &network
 			break
 		}
 	}
 
-	if len(found) == 0 {
+	if found == nil {
 		return diag.Errorf("Network %s was not found in project %s", desiredName, projectID)
 	}
-	if len(found) > 1 {
-		return diag.Errorf("There are more than one network with name %s in project %s", desiredName, projectID)
-	}
 
-	d.SetId(found[0].NetworkID)
-	d.Set("cidr_block", found[0].CIDRBlock)
-	d.Set("region", found[0].Region)
-	d.Set("resource_provider", found[0].Provider)
+	d.SetId(found.NetworkID)
+	d.Set("cidr_block", found.CIDRBlock)
+	d.Set("region", found.Region)
+	d.Set("resource_provider", found.Provider)
 
 	return nil
 }
