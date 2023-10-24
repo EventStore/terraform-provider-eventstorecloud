@@ -65,25 +65,13 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	var found *client.Network
-	multipleNetworksFound := false
 
 	desiredName := d.Get("name").(string)
-	count := 0
 	for _, network := range resp.Networks {
-		if network.Name == desiredName {
-			count++
-			if count > 1 {
-				multipleNetworksFound = true
-				break
-			}
-			if network.Status == "available" {
-				found = &network
-			}
+		if network.Name == desiredName && network.Status == "available" {
+			found = &network
+			break
 		}
-	}
-
-	if multipleNetworksFound {
-		return diag.Errorf("Error: Multiple networks with the same name '%s' were found. Please specify a more unique name or check your existing resources.", desiredName)
 	}
 
 	if found == nil {
@@ -94,6 +82,65 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	d.Set("cidr_block", found.CIDRBlock)
 	d.Set("region", found.Region)
 	d.Set("resource_provider", found.Provider)
+
+	return nil
+}
+
+func dataSourceNetworkList() *schema.Resource {
+	return &schema.Resource{
+		Description: "Retrieves data for an existing `Network` resource",
+		ReadContext: dataSourceNetworkListRead,
+		Schema: map[string]*schema.Schema{
+			"project_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"networks": {
+				Type:     schema.TypeList,
+				Elem:     dataSourceNetwork(),
+				Computed: true,
+			},
+		},
+	}
+}
+
+func dataSourceNetworkListRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	projectID := d.Get("project_id").(string)
+	desiredName := d.Get("name").(string)
+
+	resp, err := c.client.NetworkList(ctx, &client.ListNetworksRequest{
+		OrganizationID: c.organizationId,
+		ProjectID:      projectID,
+	})
+	if err != nil {
+		return err
+	}
+
+	networkResources := make([]map[string]interface{}, 0)
+
+	for _, network := range resp.Networks {
+		if network.Name == desiredName && network.Status == "available" {
+			networkResource := map[string]interface{}{
+				"cidr_block":        network.CIDRBlock,
+				"name":              network.Name,
+				"project_id":        network.ProjectID,
+				"region":            network.Region,
+				"resource_provider": network.Provider,
+			}
+			networkResources = append(networkResources, networkResource)
+		}
+	}
+
+	d.SetId(projectID)
+	if err := d.Set("networks", networkResources); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return nil
 }
