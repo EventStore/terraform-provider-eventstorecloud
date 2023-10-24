@@ -65,12 +65,25 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	var found *client.Network
+	multipleNetworksFound := false
+
 	desiredName := d.Get("name").(string)
+	count := 0
 	for _, network := range resp.Networks {
-		if network.Name == desiredName && network.Status == "available" {
-			found = &network
-			break
+		if network.Name == desiredName {
+			count++
+			if count > 1 {
+				multipleNetworksFound = true
+				break
+			}
+			if network.Status == "available" {
+				found = &network
+			}
 		}
+	}
+
+	if multipleNetworksFound {
+		return diag.Errorf("Error: Multiple networks with the same name '%s' were found. Please specify a more unique name or check your existing resources.", desiredName)
 	}
 
 	if found == nil {
