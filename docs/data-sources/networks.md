@@ -19,7 +19,7 @@ data "eventstorecloud_networks" "example" {
 }
 
 output "first_network" {
-  value = data.eventstorecloud_network.example.networks[0]
+  value = data.eventstorecloud_networks.example.networks[0]
 }
 ```
 
