@@ -2,6 +2,7 @@ package esc
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -48,6 +49,9 @@ func dataSourceNetwork() *schema.Resource {
 }
 
 func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+
+	log.Printf("[WARN] Your warning message here")
+
 	c := meta.(*providerContext)
 
 	projectID := d.Get("project_id").(string)
@@ -65,13 +69,23 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	var found *client.Network
+	multipleNetworksFound := false
+	count := 0
 
 	desiredName := d.Get("name").(string)
 	for _, network := range resp.Networks {
 		if network.Name == desiredName && network.Status == "available" {
+			count++
+			if count > 1 {
+				multipleNetworksFound = true
+				break
+			}
 			found = &network
-			break
 		}
+	}
+
+	if multipleNetworksFound {
+		return diag.Errorf("Error: Multiple networks with the same name '%s' were found. Please specify a more unique name or check your existing resources.", desiredName)
 	}
 
 	if found == nil {
@@ -83,7 +97,12 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	d.Set("region", found.Region)
 	d.Set("resource_provider", found.Provider)
 
-	return nil
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "This resource is deprecated. Please use the eventstorecloud_networks data resource instead.",
+		},
+	}
 }
 
 func dataSourceNetworkList() *schema.Resource {
