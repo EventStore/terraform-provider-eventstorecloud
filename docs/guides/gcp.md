@@ -8,11 +8,10 @@ description: |-
 # Event Store Cloud in GCP
 
 The sample project creates the following resources in Event Store Cloud:
-
--   Project
--   Network
--   Network peering
--   Managed EventStoreDB using single F1 node with 16GB disk
+- Project
+- Network
+- Network peering
+- Managed EventStoreDB using single F1 node with 16GB disk
 
 From the GCP side, you still need to create an incoming peering from your GCP account towards the Event Store Cloud VPC as described in the [documentation](https://developers.eventstore.com/cloud/provision/gcp/#network-peering).
 This step can be also automated using the GCP Terraform provider.

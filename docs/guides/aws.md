@@ -8,11 +8,10 @@ description: |-
 # Event Store Cloud in AWS
 
 The sample project creates the following resources in Event Store Cloud:
-
--   Project
--   Network
--   Network peering
--   Managed EventStoreDB using single F1 node with 16GB disk
+- Project
+- Network
+- Network peering
+- Managed EventStoreDB using single F1 node with 16GB disk
 
 From the AWS side, you still need to accept the peering request and configure the route as described in the [documentation](https://developers.eventstore.com/cloud/provision/aws/#network-peering).
 This step can be also automated using the AWS Terraform provider.

@@ -8,11 +8,10 @@ description: |-
 # Event Store Cloud in Azure
 
 The sample project creates the following resources in Event Store Cloud:
-
--   Project
--   Network
--   Network peering
--   Managed EventStoreDB using single F1 node with 16GB disk
+- Project
+- Network
+- Network peering
+- Managed EventStoreDB using single F1 node with 16GB disk
 
 From the Azure side, you still need to register the Event Store Cloud service account with the necessary permissions to create a network peering.
 Read more in the provisioning [documentation](https://developers.eventstore.com/cloud/provision/azure/#network-peering).
