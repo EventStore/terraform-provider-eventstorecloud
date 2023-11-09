@@ -138,7 +138,7 @@ resource "eventstorecloud_managed_cluster" "wings" {
   instance_type    = "F1"
   disk_size        = 10
   disk_type        = "premium-ssd-lrs"
-  server_version   = "23.6"
+  server_version   = "23.10"
   projection_level = "user"
 }
 
