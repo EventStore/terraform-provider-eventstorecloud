@@ -48,6 +48,7 @@ func dataSourceNetwork() *schema.Resource {
 }
 
 func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+
 	c := meta.(*providerContext)
 
 	projectID := d.Get("project_id").(string)
@@ -64,26 +65,34 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("There are no networks in project %s", projectID)
 	}
 
-	var found []*client.Network
+	var found *client.Network
+	multipleNetworksFound := false
+	count := 0
+
 	desiredName := d.Get("name").(string)
 	for _, network := range resp.Networks {
-		if network.Name == desiredName {
-			found = append(found, &network)
-			break
+		if network.Name == desiredName && network.Status == "available" {
+			count++
+			if count > 1 {
+				multipleNetworksFound = true
+				break
+			}
+			found = &network
 		}
 	}
 
-	if len(found) == 0 {
-		return diag.Errorf("Network %s was not found in project %s", desiredName, projectID)
-	}
-	if len(found) > 1 {
-		return diag.Errorf("There are more than one network with name %s in project %s", desiredName, projectID)
+	if multipleNetworksFound {
+		return diag.Errorf("Error: Multiple networks with the same name '%s' were found. Please specify a more unique name or check your existing resources.", desiredName)
 	}
 
-	d.SetId(found[0].NetworkID)
-	d.Set("cidr_block", found[0].CIDRBlock)
-	d.Set("region", found[0].Region)
-	d.Set("resource_provider", found[0].Provider)
+	if found == nil {
+		return diag.Errorf("Network %s was not found in project %s", desiredName, projectID)
+	}
+
+	d.SetId(found.NetworkID)
+	d.Set("cidr_block", found.CIDRBlock)
+	d.Set("region", found.Region)
+	d.Set("resource_provider", found.Provider)
 
 	return nil
 }
