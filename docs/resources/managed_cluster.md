@@ -40,7 +40,7 @@ resource "eventstorecloud_managed_cluster" "example" {
   disk_type       = "gp3"
   disk_iops       = 3000
   disk_throughput = 125
-  server_version  = "20.6"
+  server_version  = "23.10"
 }
 ```
 
@@ -65,6 +65,7 @@ resource "eventstorecloud_managed_cluster" "example" {
 - **id** (String) The ID of this resource.
 - **projection_level** (String) Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below) Defaults to `off`.
 - **protected** (Boolean) Protection from an accidental cluster deletion Defaults to `false`.
+- **server_version_tag** (String) Server version tag to provision (find the list of valid values below). A higher server_version_tag will prompt an upgrade.
 
 ### Read-Only
 

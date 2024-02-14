@@ -10,24 +10,25 @@ import (
 )
 
 type ManagedCluster struct {
-	OrganizationID  string `json:"organizationId"`
-	ProjectID       string `json:"projectId"`
-	NetworkID       string `json:"networkId"`
-	ClusterID       string `json:"id"`
-	Name            string `json:"description"`
-	Provider        string `json:"provider"`
-	Region          string `json:"region"`
-	Topology        string `json:"topology"`
-	InstanceType    string `json:"instanceType"`
-	DiskSizeGB      int32  `json:"diskSizeGb"`
-	DiskType        string `json:"diskType"`
-	DiskIops        int32  `json:"diskIops"`
-	DiskThroughput  int32  `json:"diskThroughput"`
-	ServerVersion   string `json:"serverVersion"`
-	ProjectionLevel string `json:"projectionLevel"`
-	Status          string `json:"status"`
-	Created         string `json:"created"`
-	Protected       bool   `json:"protected"`
+	OrganizationID   string `json:"organizationId"`
+	ProjectID        string `json:"projectId"`
+	NetworkID        string `json:"networkId"`
+	ClusterID        string `json:"id"`
+	Name             string `json:"description"`
+	Provider         string `json:"provider"`
+	Region           string `json:"region"`
+	Topology         string `json:"topology"`
+	InstanceType     string `json:"instanceType"`
+	DiskSizeGB       int32  `json:"diskSizeGb"`
+	DiskType         string `json:"diskType"`
+	DiskIops         int32  `json:"diskIops"`
+	DiskThroughput   int32  `json:"diskThroughput"`
+	ServerVersion    string `json:"serverVersion"`
+	ServerVersionTag string `json:"serverVersionTag"`
+	ProjectionLevel  string `json:"projectionLevel"`
+	Status           string `json:"status"`
+	Created          string `json:"created"`
+	Protected        bool   `json:"protected"`
 }
 
 type GetManagedClusterRequest struct {

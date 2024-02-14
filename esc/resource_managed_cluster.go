@@ -102,6 +102,17 @@ func resourceManagedCluster() *schema.Resource {
 					return strings.ToLower(val.(string))
 				},
 			},
+			"server_version_tag": {
+				Description:  "Server version tag to provision (find the list of valid values below). A higher server_version_tag will prompt an upgrade.",
+				Optional:     true,
+				ForceNew:     false,
+				Type:         schema.TypeString,
+				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersionTags, true)),
+				StateFunc: func(val interface{}) string {
+					// Normalize to lower case
+					return strings.ToLower(val.(string))
+				},
+			},
 			"projection_level": {
 				Description:  "Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below)",
 				Optional:     true,
@@ -233,6 +244,9 @@ func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, met
 	if err := d.Set("server_version", resp.ManagedCluster.ServerVersion); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
+	if err := d.Set("server_version_tag", resp.ManagedCluster.ServerVersionTag); err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+	}
 	if err := d.Set("projection_level", resp.ManagedCluster.ProjectionLevel); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
@@ -268,6 +282,26 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		if err := c.client.ManagedClusterUpdate(ctx, request); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("server_version_tag") {
+		request := &client.ManagedClusterUpgradeRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			TargetTag:      d.Get("server_version_tag").(string),
+		}
+		if err := c.client.ManagedClusterUpgrade(ctx, request); err != nil {
+			return err
+		}
+		if err := c.client.ManagedClusterWaitForState(ctx, &client.WaitForManagedClusterStateRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			State:          "available",
+		}); err != nil {
 			return err
 		}
 	}
