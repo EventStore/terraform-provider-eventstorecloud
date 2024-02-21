@@ -94,7 +94,7 @@ func resourceManagedCluster() *schema.Resource {
 			"server_version": {
 				Description:  "Server version to provision (find the list of valid values below)",
 				Required:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				Type:         schema.TypeString,
 				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersions, true)),
 				StateFunc: func(val interface{}) string {
@@ -106,6 +106,7 @@ func resourceManagedCluster() *schema.Resource {
 				Description:  "Server version tag to provision (find the list of valid values below). A higher server_version_tag will prompt an upgrade.",
 				Optional:     true,
 				ForceNew:     false,
+				Computed:     true,
 				Type:         schema.TypeString,
 				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersionTags, true)),
 				StateFunc: func(val interface{}) string {
@@ -286,12 +287,14 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	if d.HasChange("server_version_tag") {
+	serverVersionTag, serverVersionTagFound := d.GetOk("server_version_tag")
+
+	if serverVersionTagFound && d.HasChange("server_version_tag") {
 		request := &client.ManagedClusterUpgradeRequest{
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
 			ClusterID:      clusterId,
-			TargetTag:      d.Get("server_version_tag").(string),
+			TargetTag:      serverVersionTag.(string),
 		}
 		if err := c.client.ManagedClusterUpgrade(ctx, request); err != nil {
 			return err
@@ -364,6 +367,7 @@ func resourceManagedClusterDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceManagedClusterCustomizeDiff(ctx context.Context, diff *schema.ResourceDiff, v interface{}) error {
+
 	disk_type := diff.Get("disk_type").(string)
 	disk_iops := diff.Get("disk_iops").(int)
 	disk_throughput := diff.Get("disk_throughput").(int)
