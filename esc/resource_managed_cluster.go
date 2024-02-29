@@ -2,6 +2,7 @@ package esc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -103,12 +104,11 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"server_version_tag": {
-				Description:  "Server version tag to provision (find the list of valid values below). A higher server_version_tag will prompt an upgrade.",
-				Optional:     true,
-				ForceNew:     false,
-				Computed:     true,
-				Type:         schema.TypeString,
-				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersionTags, true)),
+				Description: "Server version tag to provision (find the list of valid values below). A higher server_version_tag will prompt an upgrade.",
+				Optional:    true,
+				ForceNew:    false,
+				Computed:    true,
+				Type:        schema.TypeString,
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -290,6 +290,13 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 	serverVersionTag, serverVersionTagFound := d.GetOk("server_version_tag")
 
 	if serverVersionTagFound && d.HasChange("server_version_tag") {
+
+		serverVersion := d.Get("server_version").(string)
+
+		if !strings.HasPrefix(serverVersionTag.(string), serverVersion) {
+			return diag.FromErr(errors.New("invalid server_version given"))
+		}
+
 		request := &client.ManagedClusterUpgradeRequest{
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
