@@ -2,7 +2,6 @@ package esc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -294,7 +293,8 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 		serverVersion := d.Get("server_version").(string)
 
 		if !strings.HasPrefix(serverVersionTag.(string), serverVersion) {
-			return diag.FromErr(errors.New("invalid server_version given"))
+			return diag.FromErr(fmt.Errorf("invalid server_version_tag: tag \"%s\" must begin with version \"%s\"", serverVersionTag.(string), serverVersion))
+
 		}
 
 		request := &client.ManagedClusterUpgradeRequest{
