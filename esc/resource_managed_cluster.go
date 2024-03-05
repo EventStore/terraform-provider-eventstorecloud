@@ -94,9 +94,20 @@ func resourceManagedCluster() *schema.Resource {
 			"server_version": {
 				Description:  "Server version to provision (find the list of valid values below)",
 				Required:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				Type:         schema.TypeString,
 				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersions, true)),
+				StateFunc: func(val interface{}) string {
+					// Normalize to lower case
+					return strings.ToLower(val.(string))
+				},
+			},
+			"server_version_tag": {
+				Description: "Server version tag to provision (find the list of valid values below). A higher server_version_tag will prompt an upgrade.",
+				Optional:    true,
+				ForceNew:    false,
+				Computed:    true,
+				Type:        schema.TypeString,
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -233,6 +244,9 @@ func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, met
 	if err := d.Set("server_version", resp.ManagedCluster.ServerVersion); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
+	if err := d.Set("server_version_tag", resp.ManagedCluster.ServerVersionTag); err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+	}
 	if err := d.Set("projection_level", resp.ManagedCluster.ProjectionLevel); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
@@ -268,6 +282,36 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		if err := c.client.ManagedClusterUpdate(ctx, request); err != nil {
+			return err
+		}
+	}
+
+	serverVersionTag, serverVersionTagFound := d.GetOk("server_version_tag")
+
+	if serverVersionTagFound && d.HasChange("server_version_tag") {
+
+		serverVersion := d.Get("server_version").(string)
+
+		if !strings.HasPrefix(serverVersionTag.(string), serverVersion) {
+			return diag.FromErr(fmt.Errorf("invalid server_version_tag: tag \"%s\" must begin with version \"%s\"", serverVersionTag.(string), serverVersion))
+
+		}
+
+		request := &client.ManagedClusterUpgradeRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			TargetTag:      serverVersionTag.(string),
+		}
+		if err := c.client.ManagedClusterUpgrade(ctx, request); err != nil {
+			return err
+		}
+		if err := c.client.ManagedClusterWaitForState(ctx, &client.WaitForManagedClusterStateRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			State:          "available",
+		}); err != nil {
 			return err
 		}
 	}
@@ -330,6 +374,7 @@ func resourceManagedClusterDelete(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceManagedClusterCustomizeDiff(ctx context.Context, diff *schema.ResourceDiff, v interface{}) error {
+
 	disk_type := diff.Get("disk_type").(string)
 	disk_iops := diff.Get("disk_iops").(int)
 	disk_throughput := diff.Get("disk_throughput").(int)
