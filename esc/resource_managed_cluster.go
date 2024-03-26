@@ -56,7 +56,7 @@ func resourceManagedCluster() *schema.Resource {
 			"instance_type": {
 				Description:  "Instance type of the managed cluster (find the list of valid values below)",
 				Required:     true,
-				ForceNew:     true,
+				ForceNew:     false,
 				Type:         schema.TypeString,
 				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validInstanceTypes, true)),
 				StateFunc: func(val interface{}) string {
@@ -282,6 +282,27 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 
 		if err := c.client.ManagedClusterUpdate(ctx, request); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("instance_type") {
+
+		request := &client.ManagedClusterResizeRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			TargetSize:     d.Get("instance_type").(string),
+		}
+		if err := c.client.ManagedClusterResize(ctx, request); err != nil {
+			return err
+		}
+		if err := c.client.ManagedClusterWaitForState(ctx, &client.WaitForManagedClusterStateRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			ClusterID:      clusterId,
+			State:          "available",
+		}); err != nil {
 			return err
 		}
 	}
