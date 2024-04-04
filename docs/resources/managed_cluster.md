@@ -51,7 +51,7 @@ resource "eventstorecloud_managed_cluster" "example" {
 
 - **disk_size** (Number) Size of the data disks, in gigabytes
 - **disk_type** (String) Storage class of the data disks (find the list of valid values below)
-- **instance_type** (String) Instance type of the managed cluster (find the list of valid values below)
+- **instance_type** (String) Instance type of the managed cluster (find the list of valid values below). A different instance type will trigger a resize operation.
 - **name** (String) Name of the managed cluster
 - **network_id** (String) ID of the network in which the managed cluster exists
 - **project_id** (String) ID of the project in which the managed cluster exists
