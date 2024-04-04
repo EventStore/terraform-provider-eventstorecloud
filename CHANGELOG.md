@@ -1,3 +1,10 @@
+# 1.5.28 (April 3, 2024)
+
+Changes:
+
+-  Clusters can now be resized to different instance types.
+
+
 # 1.5.27 (March 13, 2024)
 
 Changes:
