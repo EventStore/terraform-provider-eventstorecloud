@@ -54,7 +54,7 @@ func resourceManagedCluster() *schema.Resource {
 				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validTopologies, true)),
 			},
 			"instance_type": {
-				Description:  "Instance type of the managed cluster (find the list of valid values below)",
+				Description:  "Instance type of the managed cluster (find the list of valid values below). A different instance type will trigger a resize operation.",
 				Required:     true,
 				ForceNew:     false,
 				Type:         schema.TypeString,
