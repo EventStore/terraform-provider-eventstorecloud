@@ -1,3 +1,10 @@
+# 1.5.29 (August 14 3, 2024)
+
+Changes:
+
+-   Allow server version "24.6" for managed clusters.
+
+
 # 1.5.28 (April 3, 2024)
 
 Changes:
