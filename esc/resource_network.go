@@ -2,6 +2,7 @@ package esc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -32,11 +33,11 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"resource_provider": {
-				Description:  "Cloud Provider in which to provision the network.",
-				Required:     true,
-				ForceNew:     true,
-				Type:         schema.TypeString,
-				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validProviders, true)),
+				Description:      "Cloud Provider in which to provision the network.",
+				Required:         true,
+				ForceNew:         true,
+				Type:             schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(validation.ToDiagFunc(validation.StringInSlice(validProviders, true))),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -64,7 +65,11 @@ func resourceNetwork() *schema.Resource {
 	}
 }
 
-func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNetworkCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -97,7 +102,11 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceNetworkRead(ctx, d, meta)
 }
 
-func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNetworkUpdate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	if d.HasChange("name") {
@@ -120,7 +129,11 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceProjectRead(ctx, d, meta)
 }
 
-func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNetworkRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -144,25 +157,31 @@ func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	if err := d.Set("project_id", resp.Network.ProjectID); err != nil {
-		diags = append(diags, diag.Errorf("Unable to set project_id", err)...)
+		diags = append(diags, diag.FromErr(fmt.Errorf("Unable to set project_id: %w", err))...)
 	}
 	if err := d.Set("resource_provider", resp.Network.Provider); err != nil {
-		diags = append(diags, diag.Errorf("Unable to set resource_provider", err)...)
+		diags = append(
+			diags,
+			diag.FromErr(fmt.Errorf("Unable to set resource_provider: %w", err))...)
 	}
 	if err := d.Set("region", resp.Network.Region); err != nil {
-		diags = append(diags, diag.Errorf("Unable to set region", err)...)
+		diags = append(diags, diag.FromErr(fmt.Errorf("Unable to set region: %w", err))...)
 	}
 	if err := d.Set("cidr_block", resp.Network.CIDRBlock); err != nil {
-		diags = append(diags, diag.Errorf("Unable to set cidr_block", err)...)
+		diags = append(diags, diag.FromErr(fmt.Errorf("Unable to set cidr_block: %w", err))...)
 	}
 	if err := d.Set("name", resp.Network.Name); err != nil {
-		diags = append(diags, diag.Errorf("Unable to set name", err)...)
+		diags = append(diags, diag.FromErr(fmt.Errorf("Unable to set name: %w", err))...)
 	}
 
 	return diags
 }
 
-func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceNetworkDelete(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics

@@ -7,12 +7,3 @@ type tokenData struct {
 	ExpiresIn    int         `json:"expires_in"`
 	TokenType    string      `json:"token_type"`
 }
-
-// Check if token data has a refresh token
-func (t *tokenData) hasRefresh() bool {
-	if t.RefreshToken != "" {
-		return true
-	}
-
-	return false
-}

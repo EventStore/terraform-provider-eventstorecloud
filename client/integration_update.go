@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type UpdateIntegrationRequest struct {
@@ -26,13 +28,18 @@ type UpdateSlackIntegrationData struct {
 	Token *string `json:"token,omitempty"`
 }
 
-func (c *Client) UpdateIntegration(ctx context.Context, organizationId string, projectId string, integrationId string, updateIntegrationRequest UpdateIntegrationRequest) diag.Diagnostics {
+func (c *Client) UpdateIntegration(
+	ctx context.Context,
+	organizationId string,
+	projectId string,
+	integrationId string,
+	updateIntegrationRequest UpdateIntegrationRequest,
+) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	requestBody, err := json.Marshal(updateIntegrationRequest)
-
 	if err != nil {
-		return diag.Errorf("error marshalling request: %w", err)
+		return diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	url := *c.apiURL
@@ -41,9 +48,14 @@ func (c *Client) UpdateIntegration(ctx context.Context, organizationId string, p
 	url.Path = strings.Replace(url.Path, "{"+"projectId"+"}", projectId, -1)
 	url.Path = strings.Replace(url.Path, "{"+"integrationId"+"}", integrationId, -1)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPut, url.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		url.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return diag.Errorf("error constructing request for UpdateIntegration: %w", err)
+		return diag.FromErr(fmt.Errorf("error constructing request for UpdateIntegration: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -52,7 +64,7 @@ func (c *Client) UpdateIntegration(ctx context.Context, organizationId string, p
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return diag.Errorf("error sending request for UpdateIntegration: %w", err)
+		return diag.FromErr(fmt.Errorf("error sending request for UpdateIntegration: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 

@@ -32,7 +32,11 @@ func resourceProject() *schema.Resource {
 	}
 }
 
-func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	request := &client.CreateProjectRequest{
@@ -50,7 +54,11 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceProjectRead(ctx, d, meta)
 }
 
-func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -72,7 +80,11 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, meta inter
 	return diags
 }
 
-func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectUpdate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	if d.HasChange("name") {
@@ -90,7 +102,11 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceProjectRead(ctx, d, meta)
 }
 
-func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceProjectDelete(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	request := &client.DeleteProjectRequest{

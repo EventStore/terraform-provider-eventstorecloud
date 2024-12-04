@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"path"
 
@@ -20,18 +21,37 @@ type ExpandManagedClusterDiskRequest struct {
 	DiskType       string `json:"diskType"`
 }
 
-func (c *Client) ManagedClusterExpandDisk(ctx context.Context, req *ExpandManagedClusterDiskRequest) diag.Diagnostics {
+func (c *Client) ManagedClusterExpandDisk(
+	ctx context.Context,
+	req *ExpandManagedClusterDiskRequest,
+) diag.Diagnostics {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return diag.Errorf("error marshalling request: %w", err)
+		return diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("mesdb", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "clusters", req.ClusterID, "disk", "expand")
+	requestURL.Path = path.Join(
+		"mesdb",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"clusters",
+		req.ClusterID,
+		"disk",
+		"expand",
+	)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPut, requestURL.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		requestURL.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return diag.Errorf("error constructing request: %w", err)
+		return diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -40,12 +60,16 @@ func (c *Client) ManagedClusterExpandDisk(ctx context.Context, req *ExpandManage
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return diag.Errorf("error sending request: %w", err)
+		return diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusNoContent {
-		return translateStatusCode(resp.StatusCode, "expanding disks for managed cluster", resp.Body)
+		return translateStatusCode(
+			resp.StatusCode,
+			"expanding disks for managed cluster",
+			resp.Body,
+		)
 	}
 
 	return nil
@@ -59,18 +83,35 @@ type ManagedClusterUpdateRequest struct {
 	Protected      bool   `json:"protected"`
 }
 
-func (c *Client) ManagedClusterUpdate(ctx context.Context, req *ManagedClusterUpdateRequest) diag.Diagnostics {
+func (c *Client) ManagedClusterUpdate(
+	ctx context.Context,
+	req *ManagedClusterUpdateRequest,
+) diag.Diagnostics {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return diag.Errorf("error marshalling request: %w", err)
+		return diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("mesdb", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "clusters", req.ClusterID)
+	requestURL.Path = path.Join(
+		"mesdb",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"clusters",
+		req.ClusterID,
+	)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPut, requestURL.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		requestURL.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return diag.Errorf("error constructing request: %w", err)
+		return diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -79,7 +120,7 @@ func (c *Client) ManagedClusterUpdate(ctx context.Context, req *ManagedClusterUp
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return diag.Errorf("error sending request: %w", err)
+		return diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -97,18 +138,37 @@ type ManagedClusterResizeRequest struct {
 	TargetSize     string `json:"targetSize"`
 }
 
-func (c *Client) ManagedClusterResize(ctx context.Context, req *ManagedClusterResizeRequest) diag.Diagnostics {
+func (c *Client) ManagedClusterResize(
+	ctx context.Context,
+	req *ManagedClusterResizeRequest,
+) diag.Diagnostics {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return diag.Errorf("error marshalling request: %v", err)
+		return diag.FromErr(fmt.Errorf("error marshalling request: %v", err))
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("mesdb", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "clusters", req.ClusterID, "commands", "resize")
+	requestURL.Path = path.Join(
+		"mesdb",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"clusters",
+		req.ClusterID,
+		"commands",
+		"resize",
+	)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPut, requestURL.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		requestURL.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return diag.Errorf("error constructing request: %v", err)
+		return diag.FromErr(fmt.Errorf("error constructing request: %v", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -117,7 +177,7 @@ func (c *Client) ManagedClusterResize(ctx context.Context, req *ManagedClusterRe
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return diag.Errorf("error sending request: %v", err)
+		return diag.FromErr(fmt.Errorf("error sending request: %v", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -135,18 +195,37 @@ type ManagedClusterUpgradeRequest struct {
 	TargetTag      string `json:"targetTag"`
 }
 
-func (c *Client) ManagedClusterUpgrade(ctx context.Context, req *ManagedClusterUpgradeRequest) diag.Diagnostics {
+func (c *Client) ManagedClusterUpgrade(
+	ctx context.Context,
+	req *ManagedClusterUpgradeRequest,
+) diag.Diagnostics {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return diag.Errorf("error marshalling request: %w", err)
+		return diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("mesdb", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "clusters", req.ClusterID, "commands", "upgrade")
+	requestURL.Path = path.Join(
+		"mesdb",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"clusters",
+		req.ClusterID,
+		"commands",
+		"upgrade",
+	)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPut, requestURL.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		requestURL.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return diag.Errorf("error constructing request: %w", err)
+		return diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -155,7 +234,7 @@ func (c *Client) ManagedClusterUpgrade(ctx context.Context, req *ManagedClusterU
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return diag.Errorf("error sending request: %w", err)
+		return diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 

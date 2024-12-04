@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"fmt"
 	"net/http"
 	"path"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type UpdateProjectRequest struct {
@@ -18,15 +20,27 @@ type UpdateProjectRequest struct {
 func (c *Client) ProjectUpdate(ctx context.Context, req *UpdateProjectRequest) diag.Diagnostics {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return diag.Errorf("error marshalling request: %w", err)
+		return diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("resources", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID)
+	requestURL.Path = path.Join(
+		"resources",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+	)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPut, requestURL.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		requestURL.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return diag.Errorf("error constructing request: %w", err)
+		return diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -35,7 +49,7 @@ func (c *Client) ProjectUpdate(ctx context.Context, req *UpdateProjectRequest) d
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return diag.Errorf("error sending request: %w", err)
+		return diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 

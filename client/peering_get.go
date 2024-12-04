@@ -3,9 +3,11 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"fmt"
 	"net/http"
 	"path"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type Peering struct {
@@ -33,13 +35,25 @@ type GetPeeringResponse struct {
 	Peering Peering `json:"peering"`
 }
 
-func (c *Client) PeeringGet(ctx context.Context, req *GetPeeringRequest) (*GetPeeringResponse, diag.Diagnostics) {
+func (c *Client) PeeringGet(
+	ctx context.Context,
+	req *GetPeeringRequest,
+) (*GetPeeringResponse, diag.Diagnostics) {
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "peerings", req.PeeringID)
+	requestURL.Path = path.Join(
+		"infra",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"peerings",
+		req.PeeringID,
+	)
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL.String(), nil)
 	if err != nil {
-		return nil, diag.Errorf("error constructing request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	if err := c.addAuthorizationHeader(request); err != nil {
 		return nil, err
@@ -47,7 +61,7 @@ func (c *Client) PeeringGet(ctx context.Context, req *GetPeeringRequest) (*GetPe
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, diag.Errorf("error sending request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -58,7 +72,7 @@ func (c *Client) PeeringGet(ctx context.Context, req *GetPeeringRequest) (*GetPe
 	decoder := json.NewDecoder(resp.Body)
 	result := GetPeeringResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, diag.Errorf("error parsing response: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error parsing response: %w", err))
 	}
 
 	return &result, nil

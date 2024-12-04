@@ -103,7 +103,11 @@ func resourcePeering() *schema.Resource {
 	}
 }
 
-func upgrade1_5_6(_ context.Context, state map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func upgrade1_5_6(
+	_ context.Context,
+	state map[string]interface{},
+	meta interface{},
+) (map[string]interface{}, error) {
 	// In version 1.5.5 / 1.5.6 we accidentally made the field
 	// `provider_metadata` into a set of maps instead of a map. Changing the
 	// type back to a map means users who have projects using 1.5.6 will get an
@@ -127,7 +131,11 @@ func upgrade1_5_6(_ context.Context, state map[string]interface{}, meta interfac
 	return state, nil
 }
 
-func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string, metadata map[string]string) diag.Diagnostics {
+func resourcePeeringSetProviderMetadata(
+	d *schema.ResourceData,
+	provider string,
+	metadata map[string]string,
+) diag.Diagnostics {
 	providerPeeringMetadata := map[string]interface{}{}
 
 	var diags diag.Diagnostics
@@ -161,7 +169,9 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 	case "azure":
 		break
 	default:
-		diags = append(diags, diag.Errorf("Unknown provider %q from Event Store Cloud API", provider)...)
+		diags = append(
+			diags,
+			diag.Errorf("Unknown provider %q from Event Store Cloud API", provider)...)
 	}
 
 	if err := d.Set("provider_metadata", providerPeeringMetadata); err != nil {
@@ -170,7 +180,11 @@ func resourcePeeringSetProviderMetadata(d *schema.ResourceData, provider string,
 	return diags
 }
 
-func resourcePeeringCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePeeringCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -216,7 +230,11 @@ func resourcePeeringCreate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourcePeeringReadCheckDefunct(ctx, d, meta)
 }
 
-func resourcePeeringUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePeeringUpdate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	if d.HasChange("name") {
@@ -235,15 +253,28 @@ func resourcePeeringUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourcePeeringRead(ctx, d, meta)
 }
 
-func resourcePeeringRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePeeringRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	return resourcePeeringReadWithCheck(ctx, d, meta, false)
 }
 
-func resourcePeeringReadCheckDefunct(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePeeringReadCheckDefunct(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	return resourcePeeringReadWithCheck(ctx, d, meta, true)
 }
 
-func resourcePeeringReadWithCheck(ctx context.Context, d *schema.ResourceData, meta interface{}, errorOnDefunct bool) diag.Diagnostics {
+func resourcePeeringReadWithCheck(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+	errorOnDefunct bool,
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -267,7 +298,15 @@ func resourcePeeringReadWithCheck(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if errorOnDefunct && resp.Peering.Status == client.StateDefunct {
-		diags = append(diags, diag.FromErr(fmt.Errorf("peering %s (in project %s) entered defunct state, check peering configuration", peeringId, projectId))...)
+		diags = append(
+			diags,
+			diag.FromErr(
+				fmt.Errorf(
+					"peering %s (in project %s) entered defunct state, check peering configuration",
+					peeringId,
+					projectId,
+				),
+			)...)
 		return diags
 	}
 
@@ -303,7 +342,11 @@ func resourcePeeringReadWithCheck(ctx context.Context, d *schema.ResourceData, m
 	return diags
 }
 
-func resourcePeeringDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePeeringDelete(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)

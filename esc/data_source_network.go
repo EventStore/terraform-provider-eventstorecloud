@@ -47,8 +47,11 @@ func dataSourceNetwork() *schema.Resource {
 	}
 }
 
-func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-
+func dataSourceNetworkRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectID := d.Get("project_id").(string)
@@ -82,7 +85,10 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if multipleNetworksFound {
-		return diag.Errorf("Error: Multiple networks with the same name '%s' were found. Please specify a more unique name or check your existing resources.", desiredName)
+		return diag.Errorf(
+			"Error: Multiple networks with the same name '%s' were found. Please specify a more unique name or check your existing resources.",
+			desiredName,
+		)
 	}
 
 	if found == nil {
@@ -90,9 +96,15 @@ func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	d.SetId(found.NetworkID)
-	d.Set("cidr_block", found.CIDRBlock)
-	d.Set("region", found.Region)
-	d.Set("resource_provider", found.Provider)
+	if err := d.Set("cidr_block", found.CIDRBlock); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("region", found.Region); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("resource_provider", found.Provider); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return nil
 }

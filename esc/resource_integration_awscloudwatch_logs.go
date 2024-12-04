@@ -12,7 +12,6 @@ import (
 )
 
 func resourceIntegrationAwsCloudWatchLogs() *schema.Resource {
-
 	return &schema.Resource{
 		CreateContext: resourceIntegrationAwsCloudWatchLogsCreate,
 		ReadContext:   resourceIntegrationAwsCloudWatchLogsRead,
@@ -90,7 +89,11 @@ func interfaceToStringList(value interface{}) []string {
 	return result
 }
 
-func resourceIntegrationAwsCloudWatchLogsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationAwsCloudWatchLogsCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -137,7 +140,11 @@ func resourceIntegrationAwsCloudWatchLogsCreate(ctx context.Context, d *schema.R
 	return resourceIntegrationAwsCloudWatchLogsRead(ctx, d, meta)
 }
 
-func resourceIntegrationAwsCloudWatchLogsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationAwsCloudWatchLogsRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -181,7 +188,11 @@ func resourceIntegrationAwsCloudWatchLogsRead(ctx context.Context, d *schema.Res
 	return diags
 }
 
-func resourceIntegrationAwsCloudWatchLogsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationAwsCloudWatchLogsDelete(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -195,11 +206,19 @@ func resourceIntegrationAwsCloudWatchLogsDelete(ctx context.Context, d *schema.R
 	for {
 		resp, err := c.client.GetIntegration(ctx, c.organizationId, projectId, integrationId)
 		if err != nil {
-			return diag.Errorf("error polling integration %q (%q) to see if it actually got deleted", integrationId, d.Get("description"))
+			return diag.Errorf(
+				"error polling integration %q (%q) to see if it actually got deleted",
+				integrationId,
+				d.Get("description"),
+			)
 		}
 		elapsed := time.Since(start)
 		if elapsed.Seconds() > 30.0 {
-			return diag.Errorf("integration %q (%q) does not seem to be deleting", integrationId, d.Get("description"))
+			return diag.Errorf(
+				"integration %q (%q) does not seem to be deleting",
+				integrationId,
+				d.Get("description"),
+			)
 		}
 		if resp.Integration.Status == "deleted" {
 			return nil
@@ -208,10 +227,21 @@ func resourceIntegrationAwsCloudWatchLogsDelete(ctx context.Context, d *schema.R
 	}
 }
 
-func resourceIntegrationAwsCloudWatchLogsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationAwsCloudWatchLogsUpdate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
-	if !d.HasChanges("cluster_ids", "description", "group_name", "region", "access_key_id", "secret_access_key") {
+	if !d.HasChanges(
+		"cluster_ids",
+		"description",
+		"group_name",
+		"region",
+		"access_key_id",
+		"secret_access_key",
+	) {
 		return resourceIntegrationAwsCloudWatchLogsRead(ctx, d, meta)
 	}
 

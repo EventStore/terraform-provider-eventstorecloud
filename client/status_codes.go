@@ -1,8 +1,9 @@
 package client
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"io"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 func translateStatusCode(status int, activity string, body io.Reader) diag.Diagnostics {

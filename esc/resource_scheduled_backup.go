@@ -11,7 +11,6 @@ import (
 )
 
 func resourceScheduledBackup() *schema.Resource {
-
 	return &schema.Resource{
 		CreateContext: resourceScheduledBackupCreate,
 		ReadContext:   resourceScheduledBackupRead,
@@ -64,7 +63,11 @@ func resourceScheduledBackup() *schema.Resource {
 	}
 }
 
-func resourceScheduledBackupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceScheduledBackupCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -90,7 +93,11 @@ func resourceScheduledBackupCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceScheduledBackupRead(ctx, d, meta)
 }
 
-func resourceScheduledBackupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceScheduledBackupRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 	projectId := d.Get("project_id").(string)
 	jobId := d.Id()
@@ -128,7 +135,11 @@ func resourceScheduledBackupRead(ctx context.Context, d *schema.ResourceData, me
 	return diags
 }
 
-func resourceScheduledBackupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceScheduledBackupDelete(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -142,11 +153,19 @@ func resourceScheduledBackupDelete(ctx context.Context, d *schema.ResourceData, 
 	for {
 		resp, err := c.client.GetJob(ctx, c.organizationId, projectId, jobId)
 		if err != nil {
-			return diag.Errorf("error polling job %q (%q) to see if it actually got deleted", jobId, d.Get("description"))
+			return diag.Errorf(
+				"error polling job %q (%q) to see if it actually got deleted",
+				jobId,
+				d.Get("description"),
+			)
 		}
 		elapsed := time.Since(start)
 		if elapsed.Seconds() > 30.0 {
-			return diag.Errorf("job %q (%q) does not seem to be deleting", jobId, d.Get("description"))
+			return diag.Errorf(
+				"job %q (%q) does not seem to be deleting",
+				jobId,
+				d.Get("description"),
+			)
 		}
 		if resp.Job.Status == "deleted" {
 			return nil
