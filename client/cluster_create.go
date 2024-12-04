@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"path"
 
@@ -31,18 +32,34 @@ type CreateManagedClusterResponse struct {
 	ClusterID string `json:"id"`
 }
 
-func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClusterRequest) (*CreateManagedClusterResponse, diag.Diagnostics) {
+func (c *Client) ManagedClusterCreate(
+	ctx context.Context,
+	req *CreateManagedClusterRequest,
+) (*CreateManagedClusterResponse, diag.Diagnostics) {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return nil, diag.Errorf("error marshalling request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("mesdb", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "clusters")
+	requestURL.Path = path.Join(
+		"mesdb",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"clusters",
+	)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		requestURL.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return nil, diag.Errorf("error constructing request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -51,7 +68,7 @@ func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClu
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, diag.Errorf("error sending request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -62,7 +79,7 @@ func (c *Client) ManagedClusterCreate(ctx context.Context, req *CreateManagedClu
 	decoder := json.NewDecoder(resp.Body)
 	result := CreateManagedClusterResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, diag.Errorf("error parsing response: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error parsing response: %w", err))
 	}
 
 	return &result, nil

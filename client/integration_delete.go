@@ -2,13 +2,19 @@ package client
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
-func (c *Client) DeleteIntegration(ctx context.Context, organizationId string, projectId string, integrationId string) diag.Diagnostics {
-
+func (c *Client) DeleteIntegration(
+	ctx context.Context,
+	organizationId string,
+	projectId string,
+	integrationId string,
+) diag.Diagnostics {
 	url := *c.apiURL
 	url.Path = "/integrate/v1/organizations/{organizationId}/projects/{projectId}/integrations/{integrationId}"
 	url.Path = strings.Replace(url.Path, "{"+"organizationId"+"}", organizationId, -1)
@@ -17,7 +23,7 @@ func (c *Client) DeleteIntegration(ctx context.Context, organizationId string, p
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodDelete, url.String(), nil)
 	if err != nil {
-		return diag.Errorf("error constructing request for DeleteIntegration: %w", err)
+		return diag.FromErr(fmt.Errorf("error constructing request for DeleteIntegration: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -26,7 +32,7 @@ func (c *Client) DeleteIntegration(ctx context.Context, organizationId string, p
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return diag.Errorf("error sending request for DeleteIntegration: %w", err)
+		return diag.FromErr(fmt.Errorf("error sending request for DeleteIntegration: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 

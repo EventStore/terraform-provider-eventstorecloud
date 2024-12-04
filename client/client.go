@@ -3,11 +3,12 @@ package client
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 
 	"github.com/hashicorp/go-cleanhttp"
 )
@@ -27,7 +28,7 @@ func (config *Config) validate() error {
 
 	if _, err := os.Stat(config.TokenStore); err != nil {
 		if os.IsNotExist(err) {
-			err := os.MkdirAll(config.TokenStore, 0700)
+			err := os.MkdirAll(config.TokenStore, 0o700)
 			if err != nil {
 				return fmt.Errorf("cannot create path %q: %w", config.TokenStore, err)
 			}
@@ -95,7 +96,7 @@ func New(opts *Config) (*Client, error) {
 func (c *Client) addAuthorizationHeader(req *http.Request) diag.Diagnostics {
 	token, err := c.accessToken(false)
 	if err != nil {
-		return diag.Errorf("error obtaining access token: %w", err)
+		return diag.FromErr(fmt.Errorf("error obtaining access token: %w", err))
 	}
 
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))

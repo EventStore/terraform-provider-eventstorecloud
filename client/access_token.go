@@ -28,14 +28,12 @@ func (a accessToken) IsValid() (jwt.Token, bool) {
 
 	token, err := jwt.ParseString(string(a),
 		jwt.WithVerify(jwa.RS256, rsaPublicKey))
-
 	// Invalid signature
 	if err != nil {
 		return token, false
 	}
 
-	err = jwt.Verify(token, jwt.WithAcceptableSkew(30*time.Second))
-
+	err = jwt.Validate(token, jwt.WithAcceptableSkew(30*time.Second))
 	// Token has expired
 	if err != nil {
 		return token, false

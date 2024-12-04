@@ -1,4 +1,6 @@
 package client
 
-const StateDeleted = "deleted"
-const StateDefunct = "defunct"
+const (
+	StateDeleted = "deleted"
+	StateDefunct = "defunct"
+)

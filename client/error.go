@@ -23,7 +23,7 @@ func (problemDetails *problemDetails) Error() string {
 
 	err := ""
 	if problemDetails.Title != "" {
-		err += fmt.Sprintf("%s", problemDetails.Title)
+		err += problemDetails.Title
 	}
 	if problemDetails.Detail != "" {
 		err += fmt.Sprintf(": %s", problemDetails.Detail)
@@ -31,7 +31,7 @@ func (problemDetails *problemDetails) Error() string {
 
 	if len(problemDetails.Fields) > 0 {
 		keys := make([]string, 0)
-		for k, _ := range problemDetails.Fields {
+		for k := range problemDetails.Fields {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)

@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"path"
 
@@ -18,13 +19,24 @@ type ListNetworksResponse struct {
 	Networks []Network `json:"networks"`
 }
 
-func (c *Client) NetworkList(ctx context.Context, req *ListNetworksRequest) (*ListNetworksResponse, diag.Diagnostics) {
+func (c *Client) NetworkList(
+	ctx context.Context,
+	req *ListNetworksRequest,
+) (*ListNetworksResponse, diag.Diagnostics) {
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "networks")
+	requestURL.Path = path.Join(
+		"infra",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"networks",
+	)
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL.String(), nil)
 	if err != nil {
-		return nil, diag.Errorf("error constructing request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	if err := c.addAuthorizationHeader(request); err != nil {
 		return nil, err
@@ -32,7 +44,7 @@ func (c *Client) NetworkList(ctx context.Context, req *ListNetworksRequest) (*Li
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, diag.Errorf("error sending request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -43,7 +55,7 @@ func (c *Client) NetworkList(ctx context.Context, req *ListNetworksRequest) (*Li
 	decoder := json.NewDecoder(resp.Body)
 	result := ListNetworksResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, diag.Errorf("error parsing response: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error parsing response: %w", err))
 	}
 
 	return &result, nil

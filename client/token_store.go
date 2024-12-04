@@ -3,7 +3,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -25,7 +24,7 @@ func (t *tokenStore) exists(audience string) bool {
 func (t *tokenStore) get(audience string) (*tokenData, error) {
 	tokenPath := t.filePath(audience)
 
-	bytes, err := ioutil.ReadFile(tokenPath)
+	bytes, err := os.ReadFile(tokenPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading token %q: %w", tokenPath, err)
 	}
@@ -49,7 +48,7 @@ func (t *tokenStore) put(audience string, token tokenData) error {
 		return fmt.Errorf("error serializing token: %w", err)
 	}
 
-	err = ioutil.WriteFile(tokenPath, bytes, 0600)
+	err = os.WriteFile(tokenPath, bytes, 0o600)
 	if err != nil {
 		return fmt.Errorf("error writing token to store %q: %w", tokenPath, err)
 	}

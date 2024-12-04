@@ -2,8 +2,9 @@ package client
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type WaitForManagedClusterStateRequest struct {
@@ -13,7 +14,10 @@ type WaitForManagedClusterStateRequest struct {
 	State          string
 }
 
-func (c *Client) ManagedClusterWaitForState(ctx context.Context, req *WaitForManagedClusterStateRequest) diag.Diagnostics {
+func (c *Client) ManagedClusterWaitForState(
+	ctx context.Context,
+	req *WaitForManagedClusterStateRequest,
+) diag.Diagnostics {
 	start := time.Now()
 
 	getRequest := &GetManagedClusterRequest{
@@ -30,7 +34,7 @@ func (c *Client) ManagedClusterWaitForState(ctx context.Context, req *WaitForMan
 
 		if resp.ManagedCluster.Status == "defunct" {
 			// Resources in a `defunct` state may not update their status right
-			//away when being destroyed, so wait a bit before failing the operation.
+			// away when being destroyed, so wait a bit before failing the operation.
 			elapsed := time.Since(start)
 			if elapsed.Seconds() > 30.0 {
 				return diag.Errorf("Cluster entered a defunct state!")

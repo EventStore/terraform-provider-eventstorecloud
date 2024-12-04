@@ -22,7 +22,11 @@ func dataSourceProject() *schema.Resource {
 	}
 }
 
-func dataSourceProjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceProjectRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	resp, err := c.client.ProjectList(ctx, &client.ListProjectsRequest{
@@ -46,10 +50,18 @@ func dataSourceProjectRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if len(found) == 0 {
-		return diag.Errorf("Project %s was not found in organization %s", desiredName, c.organizationId)
+		return diag.Errorf(
+			"Project %s was not found in organization %s",
+			desiredName,
+			c.organizationId,
+		)
 	}
 	if len(found) > 1 {
-		return diag.Errorf("There are more than one project with name %s in organization %s", desiredName, c.organizationId)
+		return diag.Errorf(
+			"There are more than one project with name %s in organization %s",
+			desiredName,
+			c.organizationId,
+		)
 	}
 
 	d.SetId(found[0].ProjectID)

@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -100,17 +100,20 @@ func New(version string) func() *schema.Provider {
 // your using an older version of the plugin which cannot be upgraded for
 // whatever reason and wish to use a newer allowed paramter value that the
 // EventStore Cloud API supports
-func ValidateWithByPass(f schema.SchemaValidateFunc) schema.SchemaValidateFunc {
+func ValidateWithByPass(f schema.SchemaValidateDiagFunc) schema.SchemaValidateDiagFunc {
 	if v := os.Getenv("ESC_BYPASS_VALIDATION"); v != "" {
-		return func(i interface{}, k string) (warnings []string, errors []error) {
-			return nil, nil
+		return func(_ any, _ cty.Path) diag.Diagnostics {
+			return diag.Diagnostics{}
 		}
 	} else {
 		return f
 	}
 }
 
-func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
+func configure(
+	version string,
+	p *schema.Provider,
+) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	return func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		config := &client.Config{
 			URL:                 d.Get("url").(string),
@@ -137,25 +140,12 @@ type providerContext struct {
 	client         *client.Client
 }
 
-// Networks, Peerings
-var fastResourceTimeout = &schema.ResourceTimeout{
-	Create: schema.DefaultTimeout(3 * time.Minute),
-	Read:   schema.DefaultTimeout(30 * time.Second),
-	Update: schema.DefaultTimeout(3 * time.Minute),
-	Delete: schema.DefaultTimeout(3 * time.Minute),
-}
-
-// Clusters
-var slowResourceTimeout = &schema.ResourceTimeout{
-	Create: schema.DefaultTimeout(10 * time.Minute),
-	Read:   schema.DefaultTimeout(30 * time.Second),
-	Update: schema.DefaultTimeout(10 * time.Minute),
-	Delete: schema.DefaultTimeout(10 * time.Minute),
-}
-
 var validProviders = []string{"aws", "gcp", "azure"}
-var validServerVersions = []string{"20.6", "20.10", "21.6", "21.10", "22.6", "22.10", "23.6", "23.10", "24.2", "24.6"}
-var validTopologies = []string{"single-node", "three-node-multi-zone"}
-var validInstanceTypes = []string{"F1", "C4", "M8", "M16", "M32", "M64", "M128"}
-var validDiskTypes = []string{"GP2", "GP3", "SSD", "PREMIUM-SSD-LRS"}
-var validProjectionLevels = []string{"off", "system", "user"}
+
+// Note: Versions < 22.10 and 23.6 are no longer supported
+var (
+	validTopologies       = []string{"single-node", "three-node-multi-zone"}
+	validInstanceTypes    = []string{"F1", "C4", "M8", "M16", "M32", "M64", "M128"}
+	validDiskTypes        = []string{"GP2", "GP3", "SSD", "PREMIUM-SSD-LRS"}
+	validProjectionLevels = []string{"off", "system", "user"}
+)

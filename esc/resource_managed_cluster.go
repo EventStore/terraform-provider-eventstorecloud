@@ -47,35 +47,43 @@ func resourceManagedCluster() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"topology": {
-				Description:  "Topology of the managed cluster (`single-node` or `three-node-multi-zone`)",
-				Required:     true,
-				ForceNew:     true,
-				Type:         schema.TypeString,
-				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validTopologies, true)),
+				Description: "Topology of the managed cluster (`single-node` or `three-node-multi-zone`)",
+				Required:    true,
+				ForceNew:    true,
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validTopologies, true)),
+				),
 			},
 			"instance_type": {
-				Description:  "Instance type of the managed cluster (find the list of valid values below). A different instance type will trigger a resize operation.",
-				Required:     true,
-				ForceNew:     false,
-				Type:         schema.TypeString,
-				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validInstanceTypes, true)),
+				Description: "Instance type of the managed cluster (find the list of valid values below). A different instance type will trigger a resize operation.",
+				Required:    true,
+				ForceNew:    false,
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validInstanceTypes, true)),
+				),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
 				},
 			},
 			"disk_size": {
-				Description:  "Size of the data disks, in gigabytes",
-				Required:     true,
-				Type:         schema.TypeInt,
-				ValidateFunc: ValidateWithByPass(validation.IntBetween(8, 4096)),
+				Description: "Size of the data disks, in gigabytes",
+				Required:    true,
+				Type:        schema.TypeInt,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.IntBetween(8, 4096)),
+				),
 			},
 			"disk_type": {
-				Description:  "Storage class of the data disks (find the list of valid values below)",
-				Required:     true,
-				ForceNew:     false,
-				Type:         schema.TypeString,
-				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validDiskTypes, true)),
+				Description: "Storage class of the data disks (find the list of valid values below)",
+				Required:    true,
+				ForceNew:    false,
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validDiskTypes, true)),
+				),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -92,11 +100,10 @@ func resourceManagedCluster() *schema.Resource {
 				Type:        schema.TypeInt,
 			},
 			"server_version": {
-				Description:  "Server version to provision (find the list of valid values below)",
-				Required:     true,
-				ForceNew:     false,
-				Type:         schema.TypeString,
-				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validServerVersions, true)),
+				Description: "Server version to provision (find the list of valid values below)",
+				Required:    true,
+				ForceNew:    false,
+				Type:        schema.TypeString,
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -114,12 +121,14 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"projection_level": {
-				Description:  "Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below)",
-				Optional:     true,
-				ForceNew:     true,
-				Default:      "off",
-				Type:         schema.TypeString,
-				ValidateFunc: ValidateWithByPass(validation.StringInSlice(validProjectionLevels, true)),
+				Description: "Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below)",
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "off",
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validProjectionLevels, true)),
+				),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -150,7 +159,11 @@ func resourceManagedCluster() *schema.Resource {
 	}
 }
 
-func resourceManagedClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceManagedClusterCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -190,7 +203,11 @@ func resourceManagedClusterCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceManagedClusterRead(ctx, d, meta)
 }
 
-func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceManagedClusterRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -266,7 +283,11 @@ func resourceManagedClusterRead(ctx context.Context, d *schema.ResourceData, met
 	return diags
 }
 
-func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceManagedClusterUpdate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -314,8 +335,13 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 		serverVersion := d.Get("server_version").(string)
 
 		if !strings.HasPrefix(serverVersionTag.(string), serverVersion) {
-			return diag.FromErr(fmt.Errorf("invalid server_version_tag: tag \"%s\" must begin with version \"%s\"", serverVersionTag.(string), serverVersion))
-
+			return diag.FromErr(
+				fmt.Errorf(
+					"invalid server_version_tag: tag \"%s\" must begin with version \"%s\"",
+					serverVersionTag.(string),
+					serverVersion,
+				),
+			)
 		}
 
 		request := &client.ManagedClusterUpgradeRequest{
@@ -337,11 +363,14 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 		}
 	}
 
-	if d.HasChange("disk_size") || d.HasChange("disk_type") || d.HasChange("disk_iops") || d.HasChange("disk_throughput") {
+	if d.HasChange("disk_size") || d.HasChange("disk_type") || d.HasChange("disk_iops") ||
+		d.HasChange("disk_throughput") {
 		oldI, newI := d.GetChange("disk_size")
 		oldSize, newSize := oldI.(int), newI.(int)
 		if newSize < oldSize {
-			return diag.FromErr(fmt.Errorf("Disks cannot be made smaller - must be %dGB or larger.", oldSize))
+			return diag.FromErr(
+				fmt.Errorf("Disks cannot be made smaller - must be %dGB or larger.", oldSize),
+			)
 		}
 
 		request := &client.ExpandManagedClusterDiskRequest{
@@ -370,7 +399,11 @@ func resourceManagedClusterUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceManagedClusterRead(ctx, d, meta)
 }
 
-func resourceManagedClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceManagedClusterDelete(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -394,8 +427,11 @@ func resourceManagedClusterDelete(ctx context.Context, d *schema.ResourceData, m
 	})
 }
 
-func resourceManagedClusterCustomizeDiff(ctx context.Context, diff *schema.ResourceDiff, v interface{}) error {
-
+func resourceManagedClusterCustomizeDiff(
+	ctx context.Context,
+	diff *schema.ResourceDiff,
+	v interface{},
+) error {
 	disk_type := diff.Get("disk_type").(string)
 	disk_iops := diff.Get("disk_iops").(int)
 	disk_throughput := diff.Get("disk_throughput").(int)

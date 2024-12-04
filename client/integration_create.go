@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type CreateIntegrationData struct {
@@ -41,10 +43,15 @@ type CreateSlackIntegrationData struct {
 	Source *string `json:"source,omitempty"`
 }
 
-func (c *Client) CreateIntegration(ctx context.Context, organizationId string, projectId string, createIntegrationRequest CreateIntegrationRequest) (*CreateIntegrationResponse, diag.Diagnostics) {
+func (c *Client) CreateIntegration(
+	ctx context.Context,
+	organizationId string,
+	projectId string,
+	createIntegrationRequest CreateIntegrationRequest,
+) (*CreateIntegrationResponse, diag.Diagnostics) {
 	requestBody, err := json.Marshal(createIntegrationRequest)
 	if err != nil {
-		return nil, diag.Errorf("error marshalling request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	url := *c.apiURL
@@ -52,9 +59,16 @@ func (c *Client) CreateIntegration(ctx context.Context, organizationId string, p
 	url.Path = strings.Replace(url.Path, "{"+"organizationId"+"}", organizationId, -1)
 	url.Path = strings.Replace(url.Path, "{"+"projectId"+"}", projectId, -1)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		url.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return nil, diag.Errorf("error constructing request for CreateIntegration: %w", err)
+		return nil, diag.FromErr(
+			fmt.Errorf("error constructing request for CreateIntegration: %w", err),
+		)
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -63,7 +77,7 @@ func (c *Client) CreateIntegration(ctx context.Context, organizationId string, p
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, diag.Errorf("error sending request for CreateIntegration: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error sending request for CreateIntegration: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -74,7 +88,7 @@ func (c *Client) CreateIntegration(ctx context.Context, organizationId string, p
 	decoder := json.NewDecoder(resp.Body)
 	result := CreateIntegrationResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, diag.Errorf("error parsing response: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error parsing response: %w", err))
 	}
 
 	return &result, nil

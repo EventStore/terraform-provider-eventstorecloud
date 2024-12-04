@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"fmt"
 	"net/http"
 	"path"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type CreatePeeringRequest struct {
@@ -24,18 +26,34 @@ type CreatePeeringResponse struct {
 	PeeringID string `json:"id"`
 }
 
-func (c *Client) PeeringCreate(ctx context.Context, req *CreatePeeringRequest) (*CreatePeeringResponse, diag.Diagnostics) {
+func (c *Client) PeeringCreate(
+	ctx context.Context,
+	req *CreatePeeringRequest,
+) (*CreatePeeringResponse, diag.Diagnostics) {
 	requestBody, err := json.Marshal(req)
 	if err != nil {
-		return nil, diag.Errorf("error marshalling request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error marshalling request: %w", err))
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "peerings")
+	requestURL.Path = path.Join(
+		"infra",
+		"v1",
+		"organizations",
+		req.OrganizationID,
+		"projects",
+		req.ProjectID,
+		"peerings",
+	)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL.String(), bytes.NewReader(requestBody))
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		requestURL.String(),
+		bytes.NewReader(requestBody),
+	)
 	if err != nil {
-		return nil, diag.Errorf("error constructing request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error constructing request: %w", err))
 	}
 	request.Header.Add("Content-Type", "application/json")
 	if err := c.addAuthorizationHeader(request); err != nil {
@@ -44,7 +62,7 @@ func (c *Client) PeeringCreate(ctx context.Context, req *CreatePeeringRequest) (
 
 	resp, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, diag.Errorf("error sending request: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error sending request: %w", err))
 	}
 	defer closeIgnoreError(resp.Body)
 
@@ -55,7 +73,7 @@ func (c *Client) PeeringCreate(ctx context.Context, req *CreatePeeringRequest) (
 	decoder := json.NewDecoder(resp.Body)
 	result := CreatePeeringResponse{}
 	if err := decoder.Decode(&result); err != nil {
-		return nil, diag.Errorf("error parsing response: %w", err)
+		return nil, diag.FromErr(fmt.Errorf("error parsing response: %w", err))
 	}
 
 	return &result, nil

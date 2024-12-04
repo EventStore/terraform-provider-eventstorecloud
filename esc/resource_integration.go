@@ -2,17 +2,16 @@ package esc
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/pkg/errors"
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
 
 func resourceIntegration() *schema.Resource {
-
 	return &schema.Resource{
 		CreateContext: resourceIntegrationCreate,
 		ReadContext:   resourceIntegrationRead,
@@ -66,9 +65,7 @@ func modifyMap(args ModifyMapArgs, data map[string]interface{}) map[string]inter
 		}
 	}
 	for _, name := range args.RemoveNames {
-		if _, ok := result[name]; ok {
-			delete(result, name)
-		}
+		delete(result, name)
 	}
 	return result
 }
@@ -107,7 +104,11 @@ func translateApiDataToTf(data map[string]interface{}) map[string]interface{} {
 	}, data)
 }
 
-func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationCreate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	projectId := d.Get("project_id").(string)
@@ -127,7 +128,11 @@ func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceIntegrationRead(ctx, d, meta)
 }
 
-func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationRead(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -157,7 +162,11 @@ func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, meta i
 	return diags
 }
 
-func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationDelete(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	var diags diag.Diagnostics
@@ -173,11 +182,19 @@ func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, meta
 	for {
 		resp, err := c.client.GetIntegration(ctx, c.organizationId, projectId, integrationId)
 		if err != nil {
-			return diag.Errorf("error polling integration %q (%q) to see if it actually got deleted", integrationId, d.Get("description"))
+			return diag.Errorf(
+				"error polling integration %q (%q) to see if it actually got deleted",
+				integrationId,
+				d.Get("description"),
+			)
 		}
 		elapsed := time.Since(start)
 		if elapsed.Seconds() > 30.0 {
-			return diag.Errorf("integration %q (%q) does not seem to be deleting", integrationId, d.Get("description"))
+			return diag.Errorf(
+				"integration %q (%q) does not seem to be deleting",
+				integrationId,
+				d.Get("description"),
+			)
 		}
 		if resp.Integration.Status == "deleted" {
 			return diags
@@ -186,7 +203,11 @@ func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 }
 
-func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceIntegrationUpdate(
+	ctx context.Context,
+	d *schema.ResourceData,
+	meta interface{},
+) diag.Diagnostics {
 	c := meta.(*providerContext)
 
 	if !d.HasChanges("description", "data") {
@@ -209,7 +230,7 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, meta
 			newData := translateTfDataToApi(v)
 			data = &newData
 		default:
-			return diag.FromErr(errors.Errorf("error - data was an unexpected type"))
+			return diag.FromErr(fmt.Errorf("error - data was an unexpected type"))
 		}
 	} else {
 		data = nil
