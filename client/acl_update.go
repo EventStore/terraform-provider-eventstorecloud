@@ -25,7 +25,7 @@ func (c *Client) AclUpdate(ctx context.Context, req *AclUpdateRequest) diag.Diag
 	}
 
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "acl", req.AclID)
+	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "acls", req.AclID)
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPut, requestURL.String(), bytes.NewReader(requestBody))
 	if err != nil {

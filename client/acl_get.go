@@ -26,7 +26,7 @@ type GetAclRequest struct {
 }
 
 type GetAclResponse struct {
-	Acl Acl `json:"cluster"`
+	Acl Acl `json:"acl"`
 }
 
 func (c *Client) AclGet(ctx context.Context, req *GetAclRequest) (*GetAclResponse, diag.Diagnostics) {
@@ -48,7 +48,7 @@ func (c *Client) AclGet(ctx context.Context, req *GetAclRequest) (*GetAclRespons
 	defer closeIgnoreError(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, translateStatusCode(resp.StatusCode, "getting managed cluster", resp.Body)
+		return nil, translateStatusCode(resp.StatusCode, "getting managed ACL", resp.Body)
 	}
 
 	decoder := json.NewDecoder(resp.Body)

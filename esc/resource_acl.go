@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/EventStore/terraform-provider-eventstorecloud/client"
 )
@@ -30,19 +29,12 @@ func resourceAcl() *schema.Resource {
 				ForceNew:    true,
 				Type:        schema.TypeString,
 			},
-			"region": {
-				Description: "Provider region in which to provision the Acl",
-				Required:    true,
-				ForceNew:    true,
-				Type:        schema.TypeString,
-			},
 			"cidr_blocks": {
-				Description:  "CIDR blocks allowed by this ACL",
-				Required:     true,
-				ForceNew:     false,
-				Type:         schema.TypeList,
-				Elem:         &schema.Schema{Type: schema.TypeString},
-				ValidateFunc: validation.IsCIDR,
+				Description: "CIDR blocks allowed by this ACL",
+				Required:    true,
+				ForceNew:    false,
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"name": {
 				Description: "Human-friendly name for the Acl",
@@ -61,7 +53,7 @@ func resourceAclCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	request := &client.CreateAclRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
-		CidrBlocks:     d.Get("cidr_blocks").([]string),
+		CidrBlocks:     interfaceToStringList(d.Get("cidr_blocks")),
 		Name:           d.Get("name").(string),
 	}
 
@@ -78,7 +70,7 @@ func resourceAclCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 func resourceAclUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
-	if d.HasChange("name") {
+	if d.HasChange("name") || d.HasChange("cidr_blocks") {
 		projectId := d.Get("project_id").(string)
 		AclId := d.Id()
 
@@ -86,7 +78,7 @@ func resourceAclUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
 			AclID:          AclId,
-			CidrBlocks:     d.Get("cidr_blocks").([]string),
+			CidrBlocks:     interfaceToStringList(d.Get("cidr_blocks")),
 			Description:    d.Get("name").(string),
 		}
 
@@ -96,7 +88,7 @@ func resourceAclUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
-	return resourceProjectRead(ctx, d, meta)
+	return resourceAclRead(ctx, d, meta)
 }
 
 func resourceAclRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -80,15 +80,6 @@ func resourceIntegrationAwsCloudWatchLogs() *schema.Resource {
 	}
 }
 
-func interfaceToStringList(value interface{}) []string {
-	list := value.([]interface{})
-	result := []string{}
-	for _, element := range list {
-		result = append(result, element.(string))
-	}
-	return result
-}
-
 func resourceIntegrationAwsCloudWatchLogsCreate(
 	ctx context.Context,
 	d *schema.ResourceData,

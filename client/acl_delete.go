@@ -16,7 +16,7 @@ type DeleteAclRequest struct {
 
 func (c *Client) AclDelete(ctx context.Context, req *DeleteAclRequest) diag.Diagnostics {
 	requestURL := *c.apiURL
-	requestURL.Path = path.Join("mesdb", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "infra", req.AclID)
+	requestURL.Path = path.Join("infra", "v1", "organizations", req.OrganizationID, "projects", req.ProjectID, "acls", req.AclID)
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodDelete, requestURL.String(), nil)
 	if err != nil {
