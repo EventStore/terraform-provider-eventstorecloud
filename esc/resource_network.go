@@ -33,11 +33,13 @@ func resourceNetwork() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"resource_provider": {
-				Description:      "Cloud Provider in which to provision the network.",
-				Required:         true,
-				ForceNew:         true,
-				Type:             schema.TypeString,
-				ValidateDiagFunc: ValidateWithByPass(validation.ToDiagFunc(validation.StringInSlice(validProviders, true))),
+				Description: "Cloud Provider in which to provision the network.",
+				Required:    true,
+				ForceNew:    true,
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validProviders, true)),
+				),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))

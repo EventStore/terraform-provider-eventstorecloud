@@ -47,35 +47,43 @@ func resourceManagedCluster() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"topology": {
-				Description:      "Topology of the managed cluster (`single-node` or `three-node-multi-zone`)",
-				Required:         true,
-				ForceNew:         true,
-				Type:             schema.TypeString,
-				ValidateDiagFunc: ValidateWithByPass(validation.ToDiagFunc(validation.StringInSlice(validTopologies, true))),
+				Description: "Topology of the managed cluster (`single-node` or `three-node-multi-zone`)",
+				Required:    true,
+				ForceNew:    true,
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validTopologies, true)),
+				),
 			},
 			"instance_type": {
-				Description:      "Instance type of the managed cluster (find the list of valid values below). A different instance type will trigger a resize operation.",
-				Required:         true,
-				ForceNew:         false,
-				Type:             schema.TypeString,
-				ValidateDiagFunc: ValidateWithByPass(validation.ToDiagFunc(validation.StringInSlice(validInstanceTypes, true))),
+				Description: "Instance type of the managed cluster (find the list of valid values below). A different instance type will trigger a resize operation.",
+				Required:    true,
+				ForceNew:    false,
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validInstanceTypes, true)),
+				),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
 				},
 			},
 			"disk_size": {
-				Description:      "Size of the data disks, in gigabytes",
-				Required:         true,
-				Type:             schema.TypeInt,
-				ValidateDiagFunc: ValidateWithByPass(validation.ToDiagFunc(validation.IntBetween(8, 4096))),
+				Description: "Size of the data disks, in gigabytes",
+				Required:    true,
+				Type:        schema.TypeInt,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.IntBetween(8, 4096)),
+				),
 			},
 			"disk_type": {
-				Description:      "Storage class of the data disks (find the list of valid values below)",
-				Required:         true,
-				ForceNew:         false,
-				Type:             schema.TypeString,
-				ValidateDiagFunc: ValidateWithByPass(validation.ToDiagFunc(validation.StringInSlice(validDiskTypes, true))),
+				Description: "Storage class of the data disks (find the list of valid values below)",
+				Required:    true,
+				ForceNew:    false,
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validDiskTypes, true)),
+				),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
@@ -113,12 +121,14 @@ func resourceManagedCluster() *schema.Resource {
 				},
 			},
 			"projection_level": {
-				Description:      "Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below)",
-				Optional:         true,
-				ForceNew:         true,
-				Default:          "off",
-				Type:             schema.TypeString,
-				ValidateDiagFunc: ValidateWithByPass(validation.ToDiagFunc(validation.StringInSlice(validProjectionLevels, true))),
+				Description: "Determines whether to run no projections, system projections only, or system and user projections (find the list of valid values below)",
+				Optional:    true,
+				ForceNew:    true,
+				Default:     "off",
+				Type:        schema.TypeString,
+				ValidateDiagFunc: ValidateWithByPass(
+					validation.ToDiagFunc(validation.StringInSlice(validProjectionLevels, true)),
+				),
 				StateFunc: func(val interface{}) string {
 					// Normalize to lower case
 					return strings.ToLower(val.(string))
