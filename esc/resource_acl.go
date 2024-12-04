@@ -1,0 +1,157 @@
+package esc
+
+import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/EventStore/terraform-provider-eventstorecloud/client"
+)
+
+func resourceAcl() *schema.Resource {
+	return &schema.Resource{
+		Description: "Manages ACL resources in Event Store Cloud",
+
+		CreateContext: resourceAclCreate,
+		ReadContext:   resourceAclRead,
+		UpdateContext: resourceAclUpdate,
+		DeleteContext: resourceAclDelete,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: resourceImport,
+		},
+
+		Schema: map[string]*schema.Schema{
+			"project_id": {
+				Description: "Project ID",
+				Required:    true,
+				ForceNew:    true,
+				Type:        schema.TypeString,
+			},
+			"region": {
+				Description: "Provider region in which to provision the Acl",
+				Required:    true,
+				ForceNew:    true,
+				Type:        schema.TypeString,
+			},
+			"cidr_blocks": {
+				Description:  "CIDR blocks allowed by this ACL",
+				Required:     true,
+				ForceNew:     false,
+				Type:         schema.TypeList,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				ValidateFunc: validation.IsCIDR,
+			},
+			"name": {
+				Description: "Human-friendly name for the Acl",
+				Type:        schema.TypeString,
+				Required:    true,
+			},
+		},
+	}
+}
+
+func resourceAclCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	projectId := d.Get("project_id").(string)
+
+	request := &client.CreateAclRequest{
+		OrganizationID: c.organizationId,
+		ProjectID:      projectId,
+		CidrBlocks:     d.Get("cidr_blocks").([]string),
+		Name:           d.Get("name").(string),
+	}
+
+	resp, err := c.client.AclCreate(ctx, request)
+	if err != nil {
+		return err
+	}
+
+	d.SetId(resp.AclID)
+
+	return resourceAclRead(ctx, d, meta)
+}
+
+func resourceAclUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	if d.HasChange("name") {
+		projectId := d.Get("project_id").(string)
+		AclId := d.Id()
+
+		request := &client.AclUpdateRequest{
+			OrganizationID: c.organizationId,
+			ProjectID:      projectId,
+			AclID:          AclId,
+			CidrBlocks:     d.Get("cidr_blocks").([]string),
+			Description:    d.Get("name").(string),
+		}
+
+		err := c.client.AclUpdate(ctx, request)
+		if err != nil {
+			return err
+		}
+	}
+
+	return resourceProjectRead(ctx, d, meta)
+}
+
+func resourceAclRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
+
+	projectId := d.Get("project_id").(string)
+	AclId := d.Id()
+
+	request := &client.GetAclRequest{
+		OrganizationID: c.organizationId,
+		ProjectID:      projectId,
+		AclID:          AclId,
+	}
+
+	resp, err := c.client.AclGet(ctx, request)
+	if err != nil {
+		return diag.Errorf("Internal Server Error, try again later")
+	}
+	if resp.Acl.Status == client.StateDeleted {
+		d.SetId("")
+		return nil
+	}
+
+	if err := d.Set("project_id", resp.Acl.ProjectID); err != nil {
+		diags = append(diags, diag.Errorf("Unable to set project_id", err)...)
+	}
+	if err := d.Set("cidr_blocks", resp.Acl.CidrBlocks); err != nil {
+		diags = append(diags, diag.Errorf("Unable to set cidr_blocks", err)...)
+	}
+	if err := d.Set("name", resp.Acl.Name); err != nil {
+		diags = append(diags, diag.Errorf("Unable to set name", err)...)
+	}
+
+	return diags
+}
+
+func resourceAclDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*providerContext)
+
+	var diags diag.Diagnostics
+
+	projectId := d.Get("project_id").(string)
+	AclId := d.Id()
+
+	request := &client.DeleteAclRequest{
+		OrganizationID: c.organizationId,
+		ProjectID:      projectId,
+		AclID:          AclId,
+	}
+
+	if err := c.client.AclDelete(ctx, request); err != nil {
+		return err
+	}
+
+	return diags
+}
