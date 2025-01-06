@@ -34,7 +34,9 @@ func resourceAcl() *schema.Resource {
 				Required:    true,
 				ForceNew:    false,
 				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Elem:         &schema.Schema{
+					Type: schema.TypeMap,
+				},
 			},
 			"name": {
 				Description: "Human-friendly name for the Acl",
@@ -45,6 +47,47 @@ func resourceAcl() *schema.Resource {
 	}
 }
 
+func mapToCidrBlock(data map[string]interface{}) client.AclCidrBlock {
+	address, _ := data["address"].(string)
+	comment, _ := data["comment"].(string)
+	return client.AclCidrBlock{
+		CidrBlock: address,
+		Comment:   comment,
+	}
+}
+
+func translateTfDataToCidrBlocks(data interface{}) []client.AclCidrBlock {
+	maps := interfaceToMapList(data)
+	result := []client.AclCidrBlock{}
+	for _, m := range maps {
+		result = append(result, mapToCidrBlock(m))
+	}
+	return result
+}
+
+func translateCidrBlocksToTf(cidrBlocks []client.AclCidrBlock) []map[string]interface{} {
+	result := []map[string]interface{}{}
+	for _, e := range cidrBlocks {
+		result = append(result, map[string]interface{}{
+			"address": e.CidrBlock,
+			"comment": e.Comment,
+		})
+	}
+	return result
+}
+
+// In terraform when we read back values they will always be of type []interface{}
+// even if we passed a []map[string]interface{} originally. This takes []interface{} and builds
+// a []string by casting each element individually.
+func interfaceToCid(value interface{}) []client.AclCidrBlock {
+	list := value.([]interface{})
+	result := []client.AclCidrBlock{}
+	for _, element := range list {
+		result = append(result, element.(client.AclCidrBlock))
+	}
+	return result
+}
+
 func resourceAclCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*providerContext)
 
@@ -53,7 +96,7 @@ func resourceAclCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 	request := &client.CreateAclRequest{
 		OrganizationID: c.organizationId,
 		ProjectID:      projectId,
-		CidrBlocks:     interfaceToStringList(d.Get("cidr_blocks")),
+		CidrBlocks:     translateTfDataToCidrBlocks(d.Get("cidr_blocks")),
 		Name:           d.Get("name").(string),
 	}
 
@@ -78,7 +121,7 @@ func resourceAclUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 			OrganizationID: c.organizationId,
 			ProjectID:      projectId,
 			AclID:          AclId,
-			CidrBlocks:     interfaceToStringList(d.Get("cidr_blocks")),
+			CidrBlocks:     translateTfDataToCidrBlocks(d.Get("cidr_blocks")),
 			Description:    d.Get("name").(string),
 		}
 
@@ -117,7 +160,7 @@ func resourceAclRead(ctx context.Context, d *schema.ResourceData, meta interface
 	if err := d.Set("project_id", resp.Acl.ProjectID); err != nil {
 		diags = append(diags, diag.Errorf("Unable to set project_id", err)...)
 	}
-	if err := d.Set("cidr_blocks", resp.Acl.CidrBlocks); err != nil {
+	if err := d.Set("cidr_blocks", translateCidrBlocksToTf(resp.Acl.CidrBlocks)); err != nil {
 		diags = append(diags, diag.Errorf("Unable to set cidr_blocks", err)...)
 	}
 	if err := d.Set("name", resp.Acl.Name); err != nil {

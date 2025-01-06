@@ -10,11 +10,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
+type AclCidrBlock struct {
+	CidrBlock string `json:"cidrBlock"`
+	Comment   string `json:"comment"`
+}
+
 type CreateAclRequest struct {
 	OrganizationID string
 	ProjectID      string
-	Name           string   `json:"description"`
-	CidrBlocks     []string `json:"cidr_blocks"`
+	Name           string         `json:"description"`
+	CidrBlocks     []AclCidrBlock `json:"cidrBlocks"`
 }
 
 type CreateAclResponse struct {

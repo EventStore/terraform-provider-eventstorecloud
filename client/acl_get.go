@@ -10,13 +10,13 @@ import (
 )
 
 type Acl struct {
-	OrganizationID string   `json:"organizationId"`
-	ProjectID      string   `json:"projectId"`
-	CidrBlocks     []string `json:"cidrBlocks"`
-	Created        string   `json:"created"`
-	Name           string   `json:"description"`
-	Status         string   `json:"status"`
-	Updated        string   `json:"updated"`
+	OrganizationID string         `json:"organizationId"`
+	ProjectID      string         `json:"projectId"`
+	CidrBlocks     []AclCidrBlock `json:"cidrBlocks"`
+	Created        string         `json:"created"`
+	Name           string         `json:"description"`
+	Status         string         `json:"status"`
+	Updated        string         `json:"updated"`
 }
 
 type GetAclRequest struct {

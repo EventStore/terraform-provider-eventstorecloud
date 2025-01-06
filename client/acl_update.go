@@ -14,8 +14,8 @@ type AclUpdateRequest struct {
 	OrganizationID string
 	ProjectID      string
 	AclID          string
-	CidrBlocks     []string `json:"cidrBlocks,omitempty"`
-	Description    string   `json:"description,omitempty"`
+	CidrBlocks     []AclCidrBlock `json:"cidrBlocks,omitempty"`
+	Description    string         `json:"description,omitempty"`
 }
 
 func (c *Client) AclUpdate(ctx context.Context, req *AclUpdateRequest) diag.Diagnostics {
