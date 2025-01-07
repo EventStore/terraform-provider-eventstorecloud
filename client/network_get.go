@@ -11,13 +11,14 @@ import (
 )
 
 type Network struct {
-	NetworkID string `json:"id"`
-	ProjectID string `json:"projectId"`
-	Provider  string `json:"provider"`
-	Region    string `json:"region"`
-	CIDRBlock string `json:"cidrBlock"`
-	Name      string `json:"description"`
-	Status    string `json:"status"`
+	NetworkID    string `json:"id"`
+	ProjectID    string `json:"projectId"`
+	Provider     string `json:"provider"`
+	Region       string `json:"region"`
+	CIDRBlock    string `json:"cidrBlock,omitempty"`
+	Name         string `json:"description"`
+	Status       string `json:"status"`
+	PublicAccess bool   `json:"publicAccess"`
 }
 
 type GetNetworkRequest struct {
