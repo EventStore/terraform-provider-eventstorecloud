@@ -11,8 +11,8 @@ import (
 )
 
 type AclCidrBlock struct {
-	CidrBlock string `json:"cidrBlock"`
-	Comment   string `json:"comment"`
+	Address string `json:"address"`
+	Comment string `json:"comment"`
 }
 
 type CreateAclRequest struct {

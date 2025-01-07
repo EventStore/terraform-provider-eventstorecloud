@@ -34,7 +34,7 @@ func resourceAcl() *schema.Resource {
 				Required:    true,
 				ForceNew:    false,
 				Type:        schema.TypeList,
-				Elem:         &schema.Schema{
+				Elem: &schema.Schema{
 					Type: schema.TypeMap,
 				},
 			},
@@ -51,8 +51,8 @@ func mapToCidrBlock(data map[string]interface{}) client.AclCidrBlock {
 	address, _ := data["address"].(string)
 	comment, _ := data["comment"].(string)
 	return client.AclCidrBlock{
-		CidrBlock: address,
-		Comment:   comment,
+		Address: address,
+		Comment: comment,
 	}
 }
 
@@ -69,7 +69,7 @@ func translateCidrBlocksToTf(cidrBlocks []client.AclCidrBlock) []map[string]inte
 	result := []map[string]interface{}{}
 	for _, e := range cidrBlocks {
 		result = append(result, map[string]interface{}{
-			"address": e.CidrBlock,
+			"address": e.Address,
 			"comment": e.Comment,
 		})
 	}
