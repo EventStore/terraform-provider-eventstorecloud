@@ -11,7 +11,7 @@ import (
 
 func resourceAcl() *schema.Resource {
 	return &schema.Resource{
-		Description: "Manages ACL resources in Event Store Cloud",
+		Description: "Manages IP Access Lists",
 
 		CreateContext: resourceAclCreate,
 		ReadContext:   resourceAclRead,
@@ -30,7 +30,7 @@ func resourceAcl() *schema.Resource {
 				Type:        schema.TypeString,
 			},
 			"cidr_blocks": {
-				Description: "CIDR blocks allowed by this ACL",
+				Description: "CIDR blocks allowed by the IP access list",
 				Required:    true,
 				ForceNew:    false,
 				Type:        schema.TypeList,

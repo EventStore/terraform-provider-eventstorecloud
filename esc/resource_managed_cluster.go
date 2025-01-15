@@ -156,7 +156,7 @@ func resourceManagedCluster() *schema.Resource {
 				Optional:    true,
 			},
 			"public_access": {
-				Description: "ID of the ACL if using public access",
+				Description: "If true, the cluster is provisioned with a public endpoint",
 				Type:        schema.TypeBool,
 				Default:     false,
 				Optional:    true,
