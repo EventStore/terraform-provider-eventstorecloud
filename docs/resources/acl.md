@@ -17,7 +17,7 @@ Manages ACL resources in Event Store Cloud
 
 ### Required
 
-- `cidr_blocks` (List of String) CIDR blocks allowed by this ACL
+- `cidr_blocks` (List of Map of String) CIDR blocks allowed by this ACL
 - `name` (String) Human-friendly name for the Acl
 - `project_id` (String) Project ID
 
