@@ -3,12 +3,12 @@
 page_title: "eventstorecloud_acl Resource - terraform-provider-eventstorecloud"
 subcategory: ""
 description: |-
-  Manages ACL resources in Event Store Cloud
+  Manages IP Access Lists
 ---
 
 # eventstorecloud_acl (Resource)
 
-Manages ACL resources in Event Store Cloud
+Manages IP Access Lists
 
 
 
@@ -17,7 +17,7 @@ Manages ACL resources in Event Store Cloud
 
 ### Required
 
-- `cidr_blocks` (List of Map of String) CIDR blocks allowed by this ACL
+- `cidr_blocks` (List of Map of String) CIDR blocks allowed by the IP access list
 - `name` (String) Human-friendly name for the Acl
 - `project_id` (String) Project ID
 
