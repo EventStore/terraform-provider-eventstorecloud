@@ -15,8 +15,9 @@ type CreateNetworkRequest struct {
 	OrganizationID   string
 	ProjectID        string
 	ResourceProvider string `json:"provider"`
-	CidrBlock        string `json:"cidrBlock"`
+	CidrBlock        string `json:"cidrBlock,omitempty"`
 	Name             string `json:"description"`
+	PublicAccess     bool   `json:"publicAccess,omitempty"`
 	Region           string `json:"region"`
 }
 

@@ -80,6 +80,7 @@ func New(version string) func() *schema.Provider {
 
 			ResourcesMap: map[string]*schema.Resource{
 				"eventstorecloud_project":                           resourceProject(),
+				"eventstorecloud_acl":                               resourceAcl(),
 				"eventstorecloud_network":                           resourceNetwork(),
 				"eventstorecloud_peering":                           resourcePeering(),
 				"eventstorecloud_managed_cluster":                   resourceManagedCluster(),

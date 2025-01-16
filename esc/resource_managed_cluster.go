@@ -155,6 +155,20 @@ func resourceManagedCluster() *schema.Resource {
 				Default:     false,
 				Optional:    true,
 			},
+			"public_access": {
+				Description: "If true, the cluster is provisioned with a public endpoint",
+				Type:        schema.TypeBool,
+				Default:     false,
+				Optional:    true,
+				ForceNew:    true,
+			},
+			"acl_id": {
+				Description: "ID of the ACL if using public access",
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -182,6 +196,8 @@ func resourceManagedClusterCreate(
 		ServerVersion:   strings.ToLower(d.Get("server_version").(string)),
 		ProjectionLevel: strings.ToLower(d.Get("projection_level").(string)),
 		Protected:       d.Get("protected").(bool),
+		PublicAccess:    d.Get("public_access").(bool),
+		AclId:           strings.ToLower(d.Get("acl_id").(string)),
 	}
 
 	resp, err := c.client.ManagedClusterCreate(ctx, request)
@@ -277,6 +293,12 @@ func resourceManagedClusterRead(
 		diags = append(diags, diag.FromErr(err)...)
 	}
 	if err := d.Set("protected", resp.ManagedCluster.Protected); err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+	}
+	if err := d.Set("public_access", resp.ManagedCluster.PublicAccess); err != nil {
+		diags = append(diags, diag.FromErr(err)...)
+	}
+	if err := d.Set("acl_id", resp.ManagedCluster.AclId); err != nil {
 		diags = append(diags, diag.FromErr(err)...)
 	}
 

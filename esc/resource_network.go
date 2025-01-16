@@ -53,15 +53,25 @@ func resourceNetwork() *schema.Resource {
 			},
 			"cidr_block": {
 				Description:  "Address space of the network in CIDR block notation",
-				Required:     true,
+				Required:     false,
 				ForceNew:     true,
+				Default:      "",
 				Type:         schema.TypeString,
 				ValidateFunc: validation.IsCIDRNetwork(8, 24),
+				Optional:     true,
 			},
 			"name": {
 				Description: "Human-friendly name for the network",
 				Type:        schema.TypeString,
 				Required:    true,
+			},
+			"public_access": {
+				Description: "Whether the network is able to be accessed from the public internet",
+				Type:        schema.TypeBool,
+				Default:     false,
+				Required:    false,
+				ForceNew:    true,
+				Optional:    true,
 			},
 		},
 	}
@@ -83,6 +93,14 @@ func resourceNetworkCreate(
 		CidrBlock:        d.Get("cidr_block").(string),
 		Name:             d.Get("name").(string),
 		Region:           d.Get("region").(string),
+		PublicAccess:     d.Get("public_access").(bool),
+	}
+
+	if request.PublicAccess && request.CidrBlock != "" {
+		return diag.Errorf("Error: network resources with \"public_access\" set to true can not set \"cidr_block\".")
+	}
+	if !request.PublicAccess && request.CidrBlock == "" {
+		return diag.Errorf("Error: network resources with \"public_access\" set to false must set \"cidr_block\".")
 	}
 
 	resp, err := c.client.NetworkCreate(ctx, request)
@@ -158,6 +176,12 @@ func resourceNetworkRead(
 		return nil
 	}
 
+	// set the returned cidr block to blank so that terraform will think it
+	// hasn't changed from its initial value
+	if resp.Network.PublicAccess {
+		resp.Network.CIDRBlock = ""
+	}
+
 	if err := d.Set("project_id", resp.Network.ProjectID); err != nil {
 		diags = append(diags, diag.FromErr(fmt.Errorf("Unable to set project_id: %w", err))...)
 	}
@@ -175,7 +199,9 @@ func resourceNetworkRead(
 	if err := d.Set("name", resp.Network.Name); err != nil {
 		diags = append(diags, diag.FromErr(fmt.Errorf("Unable to set name: %w", err))...)
 	}
-
+	if err := d.Set("public_access", resp.Network.PublicAccess); err != nil {
+		diags = append(diags, diag.FromErr(fmt.Errorf("Unable to set public_access: %w", err))...)
+	}
 	return diags
 }
 

@@ -30,6 +30,8 @@ type ManagedCluster struct {
 	Status           string `json:"status"`
 	Created          string `json:"created"`
 	Protected        bool   `json:"protected"`
+	AclId            string `json:"aclId"`
+	PublicAccess     bool   `json:"publicAccess"`
 }
 
 type GetManagedClusterRequest struct {
