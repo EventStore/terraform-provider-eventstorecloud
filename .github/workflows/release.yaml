@@ -20,8 +20,8 @@ jobs:
               uses: crazy-max/ghaction-import-gpg@v5.0.0
               with:
                   # These secrets will need to be configured for the repository:
-                  gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY_2024 }}
-                  passphrase: ${{ secrets.GPG_PASSPHRASE_2024 }}
+                  gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY_2025 }}
+                  passphrase: ${{ secrets.GPG_PASSPHRASE_2025 }}
             - name: Run GoReleaser
               uses: goreleaser/goreleaser-action@v3.0.0
               with:
