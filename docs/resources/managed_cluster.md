@@ -62,7 +62,7 @@ output "cluster_admin_password" {
   sensitive   = true
 }
 
-# Output the ops password
+# Output the ops password  
 output "cluster_ops_password" {
   description = "Initial ops password for the EventStore cluster"
   value       = eventstorecloud_managed_cluster.example.initial_ops_password
@@ -134,19 +134,17 @@ terraform output -raw cluster_ops_password
 Use only the following values as `disk_type`:
 
 | Provider     | Disk types        |
-| :----------- | :---------------- |
+|:-------------|:------------------|
 | Azure        | `premium-ssd-lrs` |
 | Google Cloud | `ssd`             |
 | AWS          | `gp2`, `gp3`      |
 
 For `server_version`, use one of the available EventStoreDB product versions:
-
 - `23.10`
 - `24.10`
 - `25.0`
 
 For `projection_level`, use one of the following values:
-
 - `off` (the projections subsystem is disabled completely)
 - `system` (only run system projections)
 - `user` (both system and custom JavaScript projections are enabled)
@@ -154,12 +152,10 @@ For `projection_level`, use one of the following values:
 Use one of the available instance types as `instance_type`:
 
 Small-scale:
-
 - `F1`
 - `C4`
 
 Production scale:
-
 - `M8`
 - `M16`
 - `M32`
@@ -169,7 +165,6 @@ Production scale:
 Check our [instance size guide](https://developers.eventstore.com/cloud/provision/cloud-instance-guidance/) to choose the right size for your workload.
 
 Use one of the following values as `topology`:
-
 - `single-node`
 - `three-node-multi-zone`
 
